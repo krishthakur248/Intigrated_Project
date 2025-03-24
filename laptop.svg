@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75 66" id="laptop">
+  <g id="Layer_2">
+    <g id="Layer_1-2">
+      <path fill="#d0d3d6" d="M43.94 53H30.06c0 6.55-.24 10.92-5.06 12h24c-4.83-1.08-5.06-5.45-5.06-12z" style="fill:#d0d3d6"></path>
+      <path d="M29.79 59h14.42a44.8 44.8 0 0 1-.28-6H30.06a44.8 44.8 0 0 1-.27 6z" style="fill:#bdc3c7"></path>
+      <path fill="#ecf0f1" d="M0 52a4 4 0 0 0 4 4h67a4 4 0 0 0 4-4v-5H0z" style="fill:#ecf0f1"></path>
+      <path d="M71 0H4a4 4 0 0 0-4 4v43h75V4a4 4 0 0 0-4-4z" style="fill:#192730"></path>
+      <path fill="#213140" d="M3 3h69v41H3z" style="fill:#213140"></path>
+      <path fill="#375667" d="M75 4a4 4 0 0 0-4-4H32.8L75 42.12z" opacity=".4" style="fill:#375667;opacity:.4"></path>
+      <circle cx="37.5" cy="51.5" r="1.85" style="fill:#192730"></circle>
+      <path d="M24 65h26v1H24z" style="fill:#bdc3c7"></path>
+    </g>
+  </g>
+</svg>
