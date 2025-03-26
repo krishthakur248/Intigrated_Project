@@ -227,7 +227,7 @@
           const mobile = document.getElementById("mobile").value;
           const password = document.getElementById("password").value;
 
-          const response = await fetch("http://localhost:5000/signup", {
+          const response = await fetch("http://192.168.242.121:5000/signup", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, mobile, password }),
