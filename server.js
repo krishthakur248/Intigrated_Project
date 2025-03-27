@@ -41,10 +41,10 @@ app.post("/signup", async (req, res) => {
 
 // Login Route
 app.post("/login", async (req, res) => {
-  const { mobile, password } = req.body;
+  const { email, password } = req.body;
 
   // Check if user exists
-  const user = await User.findOne({ mobile });
+  const user = await User.findOne({ email });
   if (!user) return res.status(400).json({ message: "User not found" });
 
   // Compare passwords
