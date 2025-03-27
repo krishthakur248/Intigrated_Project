@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://tkrish552:krish@cluster0.oo5xi.mongodb.net/sample_mflix?retryWrites=true&w=majority&appName=Cluster0", {
+mongoose.connect("mongodb+srv://ananabababa05:krish@cluster0.gmel6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
