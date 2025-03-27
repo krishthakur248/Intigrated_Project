@@ -44,14 +44,6 @@ app.post("/signup", async (req, res) => {
       res.status(500).json({ message: "Server error", error: error.message });
   }
 });
-app.delete("/delete-all-users", async (req, res) => {
-  try {
-      await User.deleteMany({});
-      res.json({ message: "All users deleted" });
-  } catch (error) {
-      res.status(500).json({ message: "Error deleting users", error: error.message });
-  }
-});
 
 // Login Route
 app.post("/login", async (req, res) => {
