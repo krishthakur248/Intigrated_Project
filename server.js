@@ -17,7 +17,7 @@ mongoose.connect("mongodb+srv://tkrish552:krish@cluster0.oo5xi.mongodb.net/sampl
 // User Schema
 const UserSchema = new mongoose.Schema({
   username: String,
-  mobile: String,
+  email: { type: String, unique: true, required: true },  // Email must be unique and required
   password: String,
 });
 
@@ -25,20 +25,18 @@ const User = mongoose.model("User", UserSchema);
 
 // Signup Route
 app.post("/signup", async (req, res) => {
-  const { username, mobile, password } = req.body;
+    const { username, email, password } = req.body;
 
-  // Check if user already exists
-  const existingUser = await User.findOne({ mobile });
-  if (existingUser) return res.status(400).json({ message: "User already exists" });
+    if (!email) return res.status(400).json({ message: "Email is required" });
 
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
 
-  // Save new user
-  const user = new User({ username, mobile, password: hashedPassword });
-  await user.save();
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ username, email, password: hashedPassword });
 
-  res.status(201).json({ message: "Signup successful" });
+    await user.save();
+    res.status(201).json({ message: "Signup successful" });
 });
 
 // Login Route
