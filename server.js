@@ -25,18 +25,24 @@ const User = mongoose.model("User", UserSchema);
 
 // Signup Route
 app.post("/signup", async (req, res) => {
-    const { username, email, password } = req.body;
+  const { username, email, password } = req.body;
 
-    if (!email) return res.status(400).json({ message: "Email is required" });
+  if (!email) return res.status(400).json({ message: "Email is required" });
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
+  try {
+      const existingUser = await User.findOne({ email }); // Check if user exists
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, email, password: hashedPassword });
+      if (existingUser) {
+          return res.status(400).json({ message: "User already exists" });
+      }
 
-    await user.save();
-    res.status(201).json({ message: "Signup successful" });
+      const newUser = new User({ username, email, password });
+      await newUser.save();
+
+      res.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+      res.status(500).json({ message: "Server error", error: error.message });
+  }
 });
 
 // Login Route
