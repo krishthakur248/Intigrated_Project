@@ -567,90 +567,10 @@
         </ul>
     </nav>
     <script>
-        // API Base URL Configuration
-        const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://intigrated-project-4.onrender.com';
-
-        // Utility Functions
-        function showAlert(message, type = 'success') {
-            const alertContainer = document.getElementById('alertContainer');
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
-            alertContainer.appendChild(alertDiv);
-
-            // Auto-remove after 3 seconds
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 3000);
-        }
-
-        // Check Authentication
-        function checkAuth() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'second.html'; // Redirect to login page
-                return false;
-            }
-            return token;
-        }
-
-        // Course Form Submission
-        const courseForm = document.getElementById('course-form');
-        courseForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const token = checkAuth();
-            if (!token) return;
-
-            // Collect form data
-            const course = {
-                courseTitle: document.getElementById('course-title').value,
-                instructorName: document.getElementById('instructor-name').value,
-                skillCategory: document.getElementById('skill-category').value,
-                skillLevel: document.getElementById('skill-level').value,
-                courseDescription: document.getElementById('course-description').value,
-                maxStudents: document.getElementById('max-students').value
-            };
-
+       async function loadUserProfile() {
             try {
-                const response = await fetch(`${API_BASE_URL}/courses`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(course)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Failed to create course');
-                }
-
-                // Reset form
-                courseForm.reset();
-
-                // Reload courses
-                showAlert('Course created successfully!');
-                await fetchMyCourses();
-
-            } catch (error) {
-                console.error('Error creating course:', error);
-                showAlert(error.message, 'danger');
-            }
-        });
-
-        // Store all courses for filtering
-        let allMyCourses = [];
-
-        // Fetch user's courses from the API
-        async function fetchMyCourses() {
-            const token = checkAuth();
-            if (!token) return;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/courses/my-courses`, {
+                const token = localStorage.getItem('token');
+                const response = await fetch('https://intigrated-project-4.onrender.com/user/profile', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -658,134 +578,7 @@
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to fetch courses');
-                }
-
-                const courses = await response.json();
-                allMyCourses = courses; // Store for filtering
-
-                // Apply any active filters
-                applyCourseFilters();
-
-            } catch (error) {
-                console.error('Error fetching courses:', error);
-                document.getElementById('instructor-courses').innerHTML =
-                    '<p style="text-align:center; color:#7f8c8d;">Error loading courses: ' + error.message + '</p>';
-            }
-        }
-
-        // Filter Courses
-        function applyCourseFilters() {
-            const categoryFilter = document.getElementById('category-filter').value;
-            const levelFilter = document.getElementById('level-filter').value;
-
-            // Apply filters
-            let filteredCourses = [...allMyCourses];
-
-            if (categoryFilter) {
-                filteredCourses = filteredCourses.filter(course => course.skillCategory === categoryFilter);
-            }
-
-            if (levelFilter) {
-                filteredCourses = filteredCourses.filter(course => course.skillLevel === levelFilter);
-            }
-
-            // Render the filtered courses
-            renderInstructorCourses(filteredCourses);
-        }
-
-        // Render Instructor Courses
-        async function renderInstructorCourses(courses) {
-            const instructorCoursesList = document.getElementById('instructor-courses');
-
-            // Clear previous courses
-            instructorCoursesList.innerHTML = '';
-
-            if (!courses || courses.length === 0) {
-                instructorCoursesList.innerHTML = '<p style="text-align:center; color:#7f8c8d;">No courses found</p>';
-                return;
-            }
-
-            for (const course of courses) {
-                const courseItem = document.createElement('div');
-                courseItem.classList.add('course-item');
-
-                // Get enrollment count for this course
-                let enrollmentCount = 0;
-                try {
-                    const countResponse = await fetch(`${API_BASE_URL}/courses/${course._id}/enrollment-count`);
-                    if (countResponse.ok) {
-                        const countData = await countResponse.json();
-                        enrollmentCount = countData.count;
-                    }
-                } catch (error) {
-                    console.error('Error fetching enrollment count:', error);
-                }
-
-                courseItem.innerHTML = `
-                    <div class="course-details">
-                        <strong>${course.courseTitle}</strong>
-                        <p>Instructor: ${course.instructorName}</p>
-                        <p>Level: ${course.skillLevel} | Category: ${course.skillCategory}</p>
-                        <p class="enrollment-info">Enrollments: ${enrollmentCount}/${course.maxStudents}</p>
-                    </div>
-                    <div class="course-actions">
-                        <a href="index.html?id=${course._id}" class="join-btn">Join</a>
-                        <button onclick="deleteCourse('${course._id}')" class="delete-btn">Delete</button>
-                    </div>
-                `;
-                instructorCoursesList.appendChild(courseItem);
-            }
-        }
-
-        // Delete Course
-        async function deleteCourse(courseId) {
-            const token = checkAuth();
-            if (!token) return;
-
-            if (!confirm('Are you sure you want to delete this course?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Failed to delete course');
-                }
-
-                showAlert('Course deleted successfully!');
-                fetchMyCourses(); // Refresh the course list
-            } catch (error) {
-                console.error('Error deleting course:', error);
-                showAlert('Error deleting course: ' + error.message, 'danger');
-            }
-        }
-
-        // Load User Profile
-        async function loadUserProfile() {
-            const token = checkAuth();
-            if (!token) return;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/user/profile`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to load profile');
+                    throw new Error('Failed to load profile');
                 }
 
                 const userData = await response.json();
@@ -800,36 +593,20 @@
                 }
             } catch (error) {
                 console.error('Error loading profile:', error);
-                showAlert('Error loading profile: ' + error.message, 'danger');
             }
         }
-
-        // Function to logout
-        function logout() {
+         // Function to logout
+         function logout() {
             localStorage.removeItem('token');
             window.location.href = 'second.html'; // Redirect to login page
         }
-
-        // Toggle profile dropdown
         const userProfile = document.getElementById('userProfile');
         const profileDropdown = document.getElementById('profileDropdown');
 
         userProfile.addEventListener('click', function() {
-            profileDropdown.classList.toggle('active');
+                profileDropdown.classList.toggle('active');
         });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!userProfile.contains(event.target)) {
-                profileDropdown.classList.remove('active');
-            }
-        });
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
-            loadUserProfile();
-            fetchMyCourses();
-        });
+        loadUserProfile();
     </script>
 </body>
 </html>
