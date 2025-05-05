@@ -480,10 +480,47 @@
         </ul>
     </nav>
     <script>
+        // API Base URL
+        const API_BASE_URL = 'https://intigrated-project-4.onrender.com';
+        let allCourses = [];
+        let userEnrollments = [];
+        let currentUserId = null;
+        
+        // Show alert message (add this at the bottom of the page if needed)
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.left = '50%';
+            alertDiv.style.transform = 'translateX(-50%)';
+            alertDiv.style.zIndex = '1000';
+            alertDiv.style.padding = '10px 20px';
+            alertDiv.style.borderRadius = '5px';
+            alertDiv.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
+            alertDiv.style.color = type === 'success' ? '#155724' : '#721c24';
+            alertDiv.style.border = type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+            
+            document.body.appendChild(alertDiv);
+            
+            // Remove alert after 3 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+        
+        // Load user profile from backend
         async function loadUserProfile() {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('https://intigrated-project-4.onrender.com/user/profile', {
+                if (!token) {
+                    // Redirect to login if no token
+                    window.location.href = 'second.html';
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -495,6 +532,7 @@
                 }
 
                 const userData = await response.json();
+                currentUserId = userData._id;
 
                 // Update profile dropdown with user data
                 document.getElementById('profileUsername').textContent = `Username: ${userData.username}`;
@@ -504,90 +542,272 @@
                 if (userData.username) {
                     document.getElementById('profileInitial').textContent = userData.username.charAt(0).toUpperCase();
                 }
+                
+                // Load courses and enrollments
+                await Promise.all([
+                    loadAllCourses(),
+                    loadUserEnrollments()
+                ]);
             } catch (error) {
                 console.error('Error loading profile:', error);
+                showAlert('Failed to load profile. Please login again.', 'danger');
             }
         }
-         // Function to logout
-         function logout() {
+        
+        // Function to logout
+        function logout() {
             localStorage.removeItem('token');
             window.location.href = 'second.html'; // Redirect to login page
         }
-        const userProfile = document.getElementById('userProfile');
-        const profileDropdown = document.getElementById('profileDropdown');
-
-        userProfile.addEventListener('click', function() {
-                profileDropdown.classList.toggle('active');
-        });
-        loadUserProfile();
-  document.addEventListener("DOMContentLoaded", async function() {
-    const token = localStorage.getItem("jwtToken");
-
-    if (!token) {
-      alert("You need to be logged in to view courses.");
-      return;
-    }
-
-    try {
-      const response = await fetch('https://intigrated-project-4.onrender.com/courses', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        
+        // Load all available courses
+        async function loadAllCourses() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/courses`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch courses');
+                }
+                
+                allCourses = await response.json();
+                displayCourses(allCourses);
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                showAlert('Failed to load courses', 'danger');
+            }
         }
-      });
-
-      const courses = await response.json();
-      const coursesContainer = document.getElementById("courses-container");
-
-      courses.forEach(course => {
-        const courseElement = document.createElement("div");
-        courseElement.classList.add("course");
-
-        courseElement.innerHTML = `
-          <h3>${course.courseTitle}</h3>
-          <p>Instructor: ${course.instructorName}</p>
-          <p>Skill Level: ${course.skillLevel}</p>
-          <p>Category: ${course.skillCategory}</p>
-          <p>${course.courseDescription}</p>
-          <button onclick="enrollInCourse('${course._id}')">Enroll</button>
-        `;
-
-        coursesContainer.appendChild(courseElement);
-      });
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-      alert("An error occurred while fetching courses.");
-    }
-  });
-
-  async function enrollInCourse(courseId) {
-    const token = localStorage.getItem("jwtToken");
-
-    if (!token) {
-      alert("You need to be logged in to enroll in a course.");
-      return;
-    }
-
-    try {
-      const response = await fetch('https://intigrated-project-4.onrender.com/enrollments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ courseId })
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        alert("Successfully enrolled in the course!");
-      } else {
-        alert(`Error: ${result.message}`);
-      }
-    } catch (error) {
-      console.error("Error enrolling in course:", error);
-      alert("An error occurred while enrolling in the course.");
-    }
-  }
+        
+        // Load user's enrollments
+        async function loadUserEnrollments() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/enrollments/my-enrollments`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch enrollments');
+                }
+                
+                userEnrollments = await response.json();
+                displayEnrollments(userEnrollments);
+            } catch (error) {
+                console.error('Error loading enrollments:', error);
+                showAlert('Failed to load your enrollments', 'danger');
+            }
+        }
+        
+        // Display all available courses
+        function displayCourses(courses) {
+            const coursesGrid = document.getElementById('courses-grid');
+            coursesGrid.innerHTML = '';
+            
+            if (courses.length === 0) {
+                coursesGrid.innerHTML = '<p class="no-courses">No courses available at the moment.</p>';
+                return;
+            }
+            
+            courses.forEach(async (course) => {
+                // Get enrollment count for this course
+                const enrollmentCount = await getEnrollmentCount(course._id);
+                
+                // Check if user is already enrolled or is the creator
+                const isEnrolled = userEnrollments.some(enrollment => 
+                    enrollment.course._id === course._id);
+                const isCreator = course.creator?._id === currentUserId;
+                
+                const courseCard = document.createElement('div');
+                courseCard.className = 'course-card';
+                
+                let actionButton = '';
+                if (isCreator) {
+                    actionButton = `<div class="enrollment-status">Your course</div>`;
+                } else if (isEnrolled) {
+                    actionButton = `
+                        <div class="enrollment-status">Enrolled</div>
+                        <button class="btn btn-secondary unenroll-btn" data-id="${course._id}">Unenroll</button>
+                    `;
+                } else if (enrollmentCount >= course.maxStudents) {
+                    actionButton = `<div class="enrollment-status">Course Full</div>`;
+                } else {
+                    actionButton = `<button class="btn enroll-btn" data-id="${course._id}">Enroll Now</button>`;
+                }
+                
+                courseCard.innerHTML = `
+                    <h3>${course.courseTitle}</h3>
+                    <span class="badge">${course.skillLevel}</span>
+                    <span class="badge">${course.skillCategory}</span>
+                    <p>Instructor: ${course.instructorName}</p>
+                    <p>${course.courseDescription}</p>
+                    <p>Capacity: ${enrollmentCount}/${course.maxStudents}</p>
+                    ${actionButton}
+                `;
+                
+                coursesGrid.appendChild(courseCard);
+                
+                // Add event listeners to buttons
+                const enrollBtn = courseCard.querySelector('.enroll-btn');
+                if (enrollBtn) {
+                    enrollBtn.addEventListener('click', () => enrollInCourse(course._id));
+                }
+                
+                const unenrollBtn = courseCard.querySelector('.unenroll-btn');
+                if (unenrollBtn) {
+                    unenrollBtn.addEventListener('click', () => unenrollFromCourse(course._id));
+                }
+            });
+        }
+        
+        // Display user's enrollments
+        function displayEnrollments(enrollments) {
+            const enrollmentsList = document.getElementById('enrollments-list');
+            enrollmentsList.innerHTML = '';
+            
+            if (enrollments.length === 0) {
+                enrollmentsList.innerHTML = '<p class="no-courses">You are not enrolled in any courses yet.</p>';
+                return;
+            }
+            
+            enrollments.forEach(enrollment => {
+                const course = enrollment.course;
+                
+                const enrollmentItem = document.createElement('div');
+                enrollmentItem.className = 'enrollment-item';
+                enrollmentItem.innerHTML = `
+                    <h3>${course.courseTitle}</h3>
+                    <p>Instructor: ${course.instructorName}</p>
+                    <p>Category: ${course.skillCategory} | Level: ${course.skillLevel}</p>
+                    <p>Enrolled on: ${new Date(enrollment.enrollmentDate).toLocaleDateString()}</p>
+                    <button class="btn btn-secondary unenroll-btn" data-id="${course._id}">Unenroll</button>
+                `;
+                
+                enrollmentsList.appendChild(enrollmentItem);
+                
+                // Add event listener to unenroll button
+                const unenrollBtn = enrollmentItem.querySelector('.unenroll-btn');
+                unenrollBtn.addEventListener('click', () => unenrollFromCourse(course._id));
+            });
+        }
+        
+        // Get enrollment count for a course
+        async function getEnrollmentCount(courseId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/courses/${courseId}/enrollment-count`);
+                const data = await response.json();
+                return data.count;
+            } catch (error) {
+                console.error('Error getting enrollment count:', error);
+                return 0;
+            }
+        }
+        
+        // Enroll in a course
+        async function enrollInCourse(courseId) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/enrollments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ courseId })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Successfully enrolled in course!');
+                    // Reload data
+                    await Promise.all([
+                        loadAllCourses(),
+                        loadUserEnrollments()
+                    ]);
+                } else {
+                    showAlert(data.message || 'Failed to enroll in course', 'danger');
+                }
+            } catch (error) {
+                console.error('Error enrolling in course:', error);
+                showAlert('Error enrolling in course. Please try again.', 'danger');
+            }
+        }
+        
+        // Unenroll from a course
+        async function unenrollFromCourse(courseId) {
+            if (!confirm('Are you sure you want to unenroll from this course?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/enrollments/${courseId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    showAlert('Successfully unenrolled from course!');
+                    // Reload data
+                    await Promise.all([
+                        loadAllCourses(),
+                        loadUserEnrollments()
+                    ]);
+                } else {
+                    const data = await response.json();
+                    showAlert(data.message || 'Failed to unenroll from course', 'danger');
+                }
+            } catch (error) {
+                console.error('Error unenrolling from course:', error);
+                showAlert('Error unenrolling from course. Please try again.', 'danger');
+            }
+        }
+        
+        // Filter courses based on category and level
+        function filterCourses() {
+            const categoryFilter = document.getElementById('category-filter').value;
+            const levelFilter = document.getElementById('level-filter').value;
+            
+            let filteredCourses = [...allCourses];
+            
+            if (categoryFilter) {
+                filteredCourses = filteredCourses.filter(course => course.skillCategory === categoryFilter);
+            }
+            
+            if (levelFilter) {
+                filteredCourses = filteredCourses.filter(course => course.skillLevel === levelFilter);
+            }
+            
+            displayCourses(filteredCourses);
+        }
+        
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const userProfile = document.getElementById('userProfile');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const categoryFilter = document.getElementById('category-filter');
+            const levelFilter = document.getElementById('level-filter');
+            
+            userProfile.addEventListener('click', function() {
+                profileDropdown.classList.toggle('active');
+            });
+            
+            // Apply filters when selections change
+            categoryFilter.addEventListener('change', filterCourses);
+            levelFilter.addEventListener('change', filterCourses);
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!userProfile.contains(event.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+            
+            loadUserProfile();
+        });
     </script>
 </body>
 </html>

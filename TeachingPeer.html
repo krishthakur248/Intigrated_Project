@@ -567,10 +567,35 @@
         </ul>
     </nav>
     <script>
-       async function loadUserProfile() {
+        // API Base URL
+        const API_BASE_URL = 'https://intigrated-project-4.onrender.com';
+        let allCourses = [];
+        
+        // Show alert message
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertContainer.appendChild(alertDiv);
+            
+            // Remove alert after 3 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+        
+        // Load user profile from backend
+        async function loadUserProfile() {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('https://intigrated-project-4.onrender.com/user/profile', {
+                if (!token) {
+                    // Redirect to login if no token
+                    window.location.href = 'second.html';
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -591,68 +616,203 @@
                 if (userData.username) {
                     document.getElementById('profileInitial').textContent = userData.username.charAt(0).toUpperCase();
                 }
+                
+                // Automatically fill instructor name if available
+                document.getElementById('instructor-name').value = userData.username || '';
+                
+                // Load user's created courses
+                loadInstructorCourses();
             } catch (error) {
                 console.error('Error loading profile:', error);
+                showAlert('Failed to load profile. Please login again.', 'danger');
             }
         }
-         // Function to logout
-         function logout() {
+        
+        // Function to logout
+        function logout() {
             localStorage.removeItem('token');
             window.location.href = 'second.html'; // Redirect to login page
         }
-        const userProfile = document.getElementById('userProfile');
-        const profileDropdown = document.getElementById('profileDropdown');
-
-        userProfile.addEventListener('click', function() {
+        
+        // Submit new course
+        async function submitCourse(event) {
+            event.preventDefault();
+            
+            const courseData = {
+                courseTitle: document.getElementById('course-title').value,
+                instructorName: document.getElementById('instructor-name').value,
+                skillCategory: document.getElementById('skill-category').value,
+                skillLevel: document.getElementById('skill-level').value,
+                courseDescription: document.getElementById('course-description').value,
+                maxStudents: document.getElementById('max-students').value
+            };
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/courses`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(courseData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Course created successfully!');
+                    document.getElementById('course-form').reset();
+                    loadInstructorCourses(); // Reload course list
+                } else {
+                    showAlert(data.message || 'Failed to create course', 'danger');
+                }
+            } catch (error) {
+                console.error('Error creating course:', error);
+                showAlert('Error creating course. Please try again.', 'danger');
+            }
+        }
+        
+        // Load instructor's created courses
+        async function loadInstructorCourses() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/courses/my-courses`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch courses');
+                }
+                
+                const courses = await response.json();
+                allCourses = courses;
+                displayCourses(courses);
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                showAlert('Failed to load your courses', 'danger');
+            }
+        }
+        
+        // Display courses in the list
+        function displayCourses(courses) {
+            const coursesContainer = document.getElementById('instructor-courses');
+            coursesContainer.innerHTML = '';
+            
+            if (courses.length === 0) {
+                coursesContainer.innerHTML = '<p>You haven\'t created any courses yet.</p>';
+                return;
+            }
+            
+            courses.forEach(async (course) => {
+                // Get enrollment count for this course
+                const enrollmentCount = await getEnrollmentCount(course._id);
+                
+                const courseElement = document.createElement('div');
+                courseElement.className = 'course-item';
+                courseElement.innerHTML = `
+                    <div class="course-details">
+                        <h3>${course.courseTitle}</h3>
+                        <p>Category: ${course.skillCategory} | Level: ${course.skillLevel}</p>
+                        <p>${course.courseDescription}</p>
+                        <div class="enrollment-info">
+                            Students: ${enrollmentCount}/${course.maxStudents}
+                        </div>
+                    </div>
+                    <div class="course-actions">
+                        <button class="delete-btn" data-id="${course._id}">Delete</button>
+                    </div>
+                `;
+                
+                coursesContainer.appendChild(courseElement);
+                
+                // Add event listener to delete button
+                const deleteBtn = courseElement.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', () => deleteCourse(course._id));
+            });
+        }
+        
+        // Get enrollment count for a course
+        async function getEnrollmentCount(courseId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/courses/${courseId}/enrollment-count`);
+                const data = await response.json();
+                return data.count;
+            } catch (error) {
+                console.error('Error getting enrollment count:', error);
+                return 0;
+            }
+        }
+        
+        // Delete a course
+        async function deleteCourse(courseId) {
+            if (!confirm('Are you sure you want to delete this course? All enrollments will also be deleted.')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    showAlert('Course deleted successfully!');
+                    loadInstructorCourses(); // Reload course list
+                } else {
+                    const data = await response.json();
+                    showAlert(data.message || 'Failed to delete course', 'danger');
+                }
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                showAlert('Error deleting course. Please try again.', 'danger');
+            }
+        }
+        
+        // Filter courses based on category and level
+        function applyCourseFilters() {
+            const categoryFilter = document.getElementById('category-filter').value;
+            const levelFilter = document.getElementById('level-filter').value;
+            
+            let filteredCourses = [...allCourses];
+            
+            if (categoryFilter) {
+                filteredCourses = filteredCourses.filter(course => course.skillCategory === categoryFilter);
+            }
+            
+            if (levelFilter) {
+                filteredCourses = filteredCourses.filter(course => course.skillLevel === levelFilter);
+            }
+            
+            displayCourses(filteredCourses);
+        }
+        
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const userProfile = document.getElementById('userProfile');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const courseForm = document.getElementById('course-form');
+            
+            userProfile.addEventListener('click', function() {
                 profileDropdown.classList.toggle('active');
+            });
+            
+            courseForm.addEventListener('submit', submitCourse);
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!userProfile.contains(event.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+            
+            loadUserProfile();
         });
-        loadUserProfile();
-  document.getElementById("create-course-form").addEventListener("submit", async function(event) {
-    event.preventDefault();
-
-    const courseTitle = document.getElementById("course-title").value;
-    const instructorName = document.getElementById("instructor-name").value;
-    const skillCategory = document.getElementById("skill-category").value;
-    const skillLevel = document.getElementById("skill-level").value;
-    const courseDescription = document.getElementById("course-description").value;
-    const maxStudents = document.getElementById("max-students").value;
-
-    // Assuming JWT token is stored in localStorage after login
-    const token = localStorage.getItem("jwtToken");
-
-    if (!token) {
-      alert("You need to be logged in to create a course.");
-      return;
-    }
-
-    try {
-      const response = await fetch('https://intigrated-project-4.onrender.com/courses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseTitle,
-          instructorName,
-          skillCategory,
-          skillLevel,
-          courseDescription,
-          maxStudents
-        })
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        alert("Course created successfully!");
-      } else {
-        alert(`Error: ${result.message}`);
-      }
-    } catch (error) {
-      console.error("Error creating course:", error);
-      alert("An error occurred while creating the course.");
-    }
-  });
     </script>
 </body>
 </html>
