@@ -520,6 +520,74 @@
                 profileDropdown.classList.toggle('active');
         });
         loadUserProfile();
+  document.addEventListener("DOMContentLoaded", async function() {
+    const token = localStorage.getItem("jwtToken");
+
+    if (!token) {
+      alert("You need to be logged in to view courses.");
+      return;
+    }
+
+    try {
+      const response = await fetch('https://intigrated-project-4.onrender.com/courses', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const courses = await response.json();
+      const coursesContainer = document.getElementById("courses-container");
+
+      courses.forEach(course => {
+        const courseElement = document.createElement("div");
+        courseElement.classList.add("course");
+
+        courseElement.innerHTML = `
+          <h3>${course.courseTitle}</h3>
+          <p>Instructor: ${course.instructorName}</p>
+          <p>Skill Level: ${course.skillLevel}</p>
+          <p>Category: ${course.skillCategory}</p>
+          <p>${course.courseDescription}</p>
+          <button onclick="enrollInCourse('${course._id}')">Enroll</button>
+        `;
+
+        coursesContainer.appendChild(courseElement);
+      });
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+      alert("An error occurred while fetching courses.");
+    }
+  });
+
+  async function enrollInCourse(courseId) {
+    const token = localStorage.getItem("jwtToken");
+
+    if (!token) {
+      alert("You need to be logged in to enroll in a course.");
+      return;
+    }
+
+    try {
+      const response = await fetch('https://intigrated-project-4.onrender.com/enrollments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ courseId })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert("Successfully enrolled in the course!");
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error enrolling in course:", error);
+      alert("An error occurred while enrolling in the course.");
+    }
+  }
     </script>
 </body>
 </html>

@@ -607,6 +607,52 @@
                 profileDropdown.classList.toggle('active');
         });
         loadUserProfile();
+  document.getElementById("create-course-form").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const courseTitle = document.getElementById("course-title").value;
+    const instructorName = document.getElementById("instructor-name").value;
+    const skillCategory = document.getElementById("skill-category").value;
+    const skillLevel = document.getElementById("skill-level").value;
+    const courseDescription = document.getElementById("course-description").value;
+    const maxStudents = document.getElementById("max-students").value;
+
+    // Assuming JWT token is stored in localStorage after login
+    const token = localStorage.getItem("jwtToken");
+
+    if (!token) {
+      alert("You need to be logged in to create a course.");
+      return;
+    }
+
+    try {
+      const response = await fetch('https://intigrated-project-4.onrender.com/courses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          courseTitle,
+          instructorName,
+          skillCategory,
+          skillLevel,
+          courseDescription,
+          maxStudents
+        })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert("Course created successfully!");
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error creating course:", error);
+      alert("An error occurred while creating the course.");
+    }
+  });
     </script>
 </body>
 </html>

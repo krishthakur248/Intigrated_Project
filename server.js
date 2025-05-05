@@ -21,8 +21,6 @@ const UserSchema = new mongoose.Schema({
   password: String,
 });
 
-<<<<<<< HEAD
-=======
 // Course Schema
 const CourseSchema = new mongoose.Schema({
   courseTitle: { type: String, required: true },
@@ -51,30 +49,20 @@ const Course = mongoose.model("Course", CourseSchema);
 const Enrollment = mongoose.model("Enrollment", EnrollmentSchema);
 
 // Delete related data when user is deleted
->>>>>>> a256cdbd3bf6b8c68b581e9fadf3b5cd2547732d
 UserSchema.pre('findOneAndDelete', async function (next) {
   const user = await this.model.findOne(this.getFilter());
 
   if (user) {
-<<<<<<< HEAD
-    await Session.deleteMany({ creator: user._id });
-=======
     // Delete user's courses
     await Course.deleteMany({ creator: user._id });
 
     // Delete user's enrollments
     await Enrollment.deleteMany({ student: user._id });
->>>>>>> a256cdbd3bf6b8c68b581e9fadf3b5cd2547732d
   }
 
   next();
 });
 
-<<<<<<< HEAD
-const User = mongoose.model("User", UserSchema);
-
-=======
->>>>>>> a256cdbd3bf6b8c68b581e9fadf3b5cd2547732d
 // Middleware to verify token
 const verifyToken = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -148,8 +136,6 @@ app.get("/user/profile", verifyToken, async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
-<<<<<<< HEAD
-=======
 
 // COURSE ROUTES
 
@@ -309,7 +295,6 @@ app.delete("/enrollments/:courseId", verifyToken, async (req, res) => {
   }
 });
 
->>>>>>> a256cdbd3bf6b8c68b581e9fadf3b5cd2547732d
 app.delete("/cleanup-orphaned-sessions", async (req, res) => {
   try {
     const sessions = await Session.find().populate('creator');
