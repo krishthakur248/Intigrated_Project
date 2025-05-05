@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillXchange - Feedback</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #fffffffe;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        /* Header styles */
+        .site-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 10rem;
+        }
+
+        img {
+            border-radius: 20%;
+        }
+
+        .auth-container {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .login-btn {
+            background-color: #159952;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Feedback Section */
+        .feedback-section {
+            margin-bottom: 40px;
+        }
+
+        .feedback-section h1 {
+            font-size: 1.8rem;
+            color: #208b32;
+            margin-bottom: 8px;
+            font-family: cursive;
+        }
+
+        .feedback-section h2 {
+            font-size: 2.2rem;
+            color: #212529;
+            font-family: small-caps;
+            margin-bottom: 24px;
+        }
+
+        .feedback-form {
+            background-color: #f8f9fa;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            font-size: 16px;
+            background-color: white;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+
+        .rating-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 8px;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            font-size: 28px;
+            color: #d1d5db;
+        }
+
+        .star-rating input[type="radio"] {
+            display: none;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input[type="radio"]:checked ~ label {
+            color: #fbbf24;
+        }
+
+        .submit-btn {
+            background-color: #159952;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .submit-btn:hover {
+            background-color: #0e7a3e;
+            transform: translateY(-2px);
+        }
+
+        /* Footer styles */
+        .site-footer {
+            margin-top: 32px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 32px;
+            background-color: #f8f9fa;
+            border-radius: 16px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-bottom: 32px;
+            padding: 0 16px;
+        }
+
+        .footer-section h4 {
+            color: #374151;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .footer-section h4:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            height: 3px;
+            width: 40px;
+            background-color: #159952;
+            border-radius: 2px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 14px;
+        }
+
+        .footer-links a {
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s ease, transform 0.2s ease;
+            display: inline-block;
+            padding: 2px 0;
+        }
+
+        .footer-links a:hover {
+            color: #159952;
+            transform: translateX(3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            background-color: #e5e7eb;
+        }
+
+        .foot {
+            padding: 16px;
+            margin-bottom: 100px;
+        }
+
+        /* Bottom Navigation - IMPROVED */
+        .bottom-nav {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 16px 16px 0 0;
+            z-index: 100;
+        }
+
+        .nav-list {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-item {
+            text-align: center;
+            position: relative;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #6b7280;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 8px 12px;
+        }
+
+        .nav-link:hover {
+            color: #159952;
+        }
+        
+        .nav-link.active {
+            color: #159952;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: #159952;
+            border-radius: 50%;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 6px;
+            fill: currentColor;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-link:hover .nav-icon {
+            transform: translateY(-2px);
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+            border-top: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            position: relative;
+        }
+
+        .menu-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: currentColor;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Confirmation message */
+        .confirmation-message {
+            display: none;
+            background-color: #d1fae5;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .confirmation-message.show {
+            display: block;
+        }
+        
+        .confirmation-message h3 {
+            color: #065f46;
+            margin-bottom: 10px;
+        }
+        
+        .confirmation-message p {
+            color: #047857;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive styles */
+        @media (min-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            .feedback-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .feedback-section h2 {
+                font-size: 3rem;
+            }
+
+            .feedback-form {
+                padding: 32px;
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 32px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .star-rating label {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="site-header">
+            <div class="brand">
+                <img src="Free (1).png" alt="SkillXchange Logo" height="70rem">
+                <span style="font-weight: bold; font-size: 1.25rem;">SkillXchange</span>
+            </div>
+            
+        </header>
+
+        <!-- Feedback Section -->
+        <div class="feedback-section">
+            <h1>Your opinion matters!</h1>
+            <h2>Share Your Feedback</h2>
+            
+            <form class="feedback-form" id="feedbackForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">What are you providing feedback about?</label>
+                    <select id="category" name="category" required>
+                        <option value="" disabled selected>Select a category</option>
+                        <option value="website">Website Experience</option>
+                        <option value="courses">Courses & Content</option>
+                        <option value="instructors">Instructors</option>
+                        <option value="support">Customer Support</option>
+                        <option value="suggestion">Suggestion</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>How would you rate your experience?</label>
+                    <div class="rating-group">
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5">
+                            <label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1">★</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Your Feedback</label>
+                    <textarea id="message" name="message" required placeholder="Please share your thoughts, suggestions, or concerns..."></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Submit Feedback</button>
+            </form>
+            
+            <div class="confirmation-message" id="confirmationMessage">
+                <h3>Thank You for Your Feedback!</h3>
+                <p>We appreciate you taking the time to share your experience with us. Your feedback helps us improve.</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About Us</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Team</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Feedback</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="#">GDPR</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Newsletter</a></li>
+                    </ul>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon">FB</a>
+                        <a href="#" class="social-icon">TW</a>
+                        <a href="#" class="social-icon">IG</a>
+                        <a href="#" class="social-icon">LI</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2025 SkillXchange. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Bottom Navigation - IMPROVED -->
+    <nav class="bottom-nav">
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a href="SkillXchange.html" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2.1L1 12h3v9h7v-6h2v6h7v-9h3L12 2.1zm0 2.691l6 5.4V19h-3v-6H9v6H6v-8.809l6-5.4z"/>
+                    </svg>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="Coomingsoon.html" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3h-4.18C14.25 1.28 12.77 0 11 0S7.75 1.28 7.18 3H3C1.9 3 1 3.9 1 5v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 0c.83 0 1.5.67 1.5 1.5S11.83 6 11 6s-1.5-.67-1.5-1.5S10.17 3 11 3zm2 14H6v-2h7v2zm3-4H6v-2h10v2zm0-4H6V7h10v2z"/>
+                    </svg>
+                    <span>For Credit</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="Coomingsoon.html" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                    </svg>
+                    <span>Peer<br> To Peer</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="Coomingsoon.html" class="nav-link active">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                    </svg>
+                    <span>Feedback</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="Coomingsoon.html" class="nav-link">
+                    <div class="menu-icon"></div>
+                    <span>Menu</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <script>
+        // Simple form submission handling
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real application, you would send the form data to your server here
+            // For demo purposes, we'll just show the confirmation message
+            document.getElementById('feedbackForm').style.display = 'none';
+            document.getElementById('confirmationMessage').classList.add('show');
+            
+            // Scroll to confirmation message
+            document.getElementById('confirmationMessage').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+        
+        // Star rating interaction
+        const stars = document.querySelectorAll('.star-rating label');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.previousElementSibling.value;
+                console.log(`Selected rating: ${rating}`);
+            });
+        });
+    </script>
+</body>
+</html>

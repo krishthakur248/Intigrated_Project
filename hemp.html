@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center - SkillXchange</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #00a67d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        header {
+            background-color: #005e45;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #005e45;
+        }
+        h2 {
+            font-size: 1.8rem;
+            color: #00a67d;
+            margin-top: 40px;
+        }
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            flex-grow: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            font-size: 1.1rem;
+        }
+        .search-button {
+            background-color: #00a67d;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        .popular-topics {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .topic-tag {
+            background-color: white;
+            color: #005e45;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid #ddd;
+        }
+        .category-boxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        .category-box {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .category-box h3 {
+            color: #005e45;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9f7f4;
+        }
+        .category-box ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .category-box li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .category-box a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+        }
+        .category-box a:hover {
+            color: #00a67d;
+        }
+        .contact-box {
+            background-color: #e9f7f4;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        .contact-options {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .contact-option {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 200px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .contact-option h3 {
+            color: #00a67d;
+        }
+        .cta-button {
+            background-color: #00a67d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex;">
+        <a href="SkillXchange.html" class="back-button">&larr; Back</a>
+        <img style="margin:0 auto; padding-top: 7vh;" height="190vh" src="Free (1).png" alt="SkillXchange Logo" />
+    </div>
+    <div class="container">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" placeholder="What can we help you with?" class="search-input">
+                <button class="search-button">Search</button>
+            </div>
+            <div class="popular-topics">
+                <span class="topic-tag">Account Setup</span>
+                <span class="topic-tag">Exchange Process</span>
+                <span class="topic-tag">Safety Guidelines</span>
+                <span class="topic-tag">Ratings & Reviews</span>
+                <span class="topic-tag">Technical Issues</span>
+                <span class="topic-tag">Payment Questions</span>
+            </div>
+        </div>
+
+        <h2>Browse Help Topics</h2>
+        <div class="category-boxes">
+            <div class="category-box">
+                <h3>Getting Started</h3>
+                <ul>
+                    <li><a href="#">Creating your account</a></li>
+                    <li><a href="#">Setting up your profile</a></li>
+                    <li><a href="#">Adding skills you can teach</a></li>
+                    <li><a href="#">Adding skills you want to learn</a></li>
+                    <li><a href="#">Uploading profile verification</a></li>
+                    <li><a href="#">Understanding the matching algorithm</a></li>
+                </ul>
+            </div>
+
+            <div class="category-box">
+                <h3>Exchange Process</h3>
+                <ul>
+                    <li><a href="#">How to propose an exchange</a></li>
+                    <li><a href="#">Setting up session schedules</a></li>
+                    <li><a href="#">Using the video platform</a></li>
+                    <li><a href="#">In-person safety guidelines</a></li>
+                    <li><a href="#">Resolving exchange issues</a></li>
+                    <li><a href="#">Ending an exchange</a></li>
+                </ul>
+            </div>
+
+            <div class="category-box">
+                <h3>Account & Settings</h3>
+                <ul>
+                    <li><a href="#">Updating your profile</a></li>
+                    <li><a href="#">Privacy settings</a></li>
+                    <li><a href="#">Notification preferences</a></li>
+                    <li><a href="#">Account verification</a></li>
+                    <li><a href="#">Changing password</a></li>
+                    <li><a href="#">Deleting your account</a></li>
+                </ul>
+            </div>
+
+            <div class="category-box">
+                <h3>Ratings & Reviews</h3>
+                <ul>
+                    <li><a href="#">How the rating system works</a></li>
+                    <li><a href="#">Writing helpful reviews</a></li>
+                    <li><a href="#">What to do about unfair reviews</a></li>
+                    <li><a href="#">Impact of ratings on visibility</a></li>
+                    <li><a href="#">Achievement badges explained</a></li>
+                </ul>
+            </div>
+
+            <div class="category-box">
+                <h3>Premium Features</h3>
+                <ul>
+                    <li><a href="#">Premium subscription benefits</a></li>
+                    <li><a href="#">Billing and payment</a></li>
+                    <li><a href="#">Cancellation policy</a></li>
+                    <li><a href="#">Group exchange feature</a></li>
+                    <li><a href="#">Advanced analytics</a></li>
+                    <li><a href="#">Featured profile placement</a></li>
+                </ul>
+            </div>
+
+            <div class="category-box">
+                <h3>Technical Support</h3>
+                <ul>
+                    <li><a href="#">Video connection issues</a></li>
+                    <li><a href="#">App troubleshooting</a></li>
+                    <li><a href="#">Browser compatibility</a></li>
+                    <li><a href="#">Error messages</a></li>
+                    <li><a href="#">Data export requests</a></li>
+                    <li><a href="#">Missing notifications</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="contact-box">
+            <h2>Can't find what you're looking for?</h2>
+            <p>Our support team is here to help you with any questions or issues.</p>
+
+            <div class="contact-options">
+                <div class="contact-option">
+                    <h3>Email Support</h3>
+                    <p>Get a response within 24 hours</p>
+                    <a href="#" class="cta-button">Send Email</a>
+                </div>
+
+                <div class="contact-option">
+                    <h3>Live Chat</h3>
+                    <p>Available 9am-5pm EST, Mon-Fri</p>
+                    <a href="#" class="cta-button">Start Chat</a>
+                </div>
+
+                <div class="contact-option">
+                    <h3>Community Forum</h3>
+                    <p>Ask the SkillXchange community</p>
+                    <a href="#" class="cta-button">Visit Forum</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zitsu Video Call Scheduler</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary: #64748b;
+            --light: #f1f5f9;
+            --dark: #0f172a;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background-color: #16a34a;
+        }
+
+        .btn-error {
+            background-color: var(--error);
+        }
+
+        .btn-error:hover {
+            background-color: #dc2626;
+        }
+
+        .scheduled-calls {
+            margin-top: 20px;
+        }
+
+        .call-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .call-item:last-child {
+            border-bottom: none;
+        }
+
+        .call-info {
+            flex-grow: 1;
+        }
+
+        .call-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-upcoming {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        .badge-active {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Video Call Interface */
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .video-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .video-controls button {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .participant-videos {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .participant-video {
+            width: calc(33.333% - 10px);
+            min-width: 150px;
+            position: relative;
+            height: 0;
+            padding-bottom: 18.75%; /* 16:9 but a third of the width */
+            background-color: #222;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .participant-name {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .chat-panel {
+            background-color: white;
+            border-radius: 8px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .message-text {
+            padding: 8px 12px;
+            border-radius: 15px;
+            display: inline-block;
+            max-width: 80%;
+        }
+
+        .message-received .message-text {
+            background-color: #f1f5f9;
+        }
+
+        .message-sent {
+            text-align: right;
+        }
+
+        .message-sent .message-text {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .participant-video {
+                width: calc(50% - 10px);
+                padding-bottom: 28.125%;
+            }
+
+            .video-controls {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .participant-video {
+                width: 100%;
+                padding-bottom: 56.25%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Zitsu Video Call Scheduler</h1>
+            <p>Schedule and join video calls with ease</p>
+        </header>
+
+        <div class="app">
+            <div class="tabs">
+                <div class="tab active" data-tab="schedule">Schedule</div>
+                <div class="tab" data-tab="upcoming">Upcoming Calls</div>
+                <div class="tab" data-tab="video-call">Video Call</div>
+            </div>
+
+            <div class="tab-content active" id="schedule-tab">
+                <div class="card">
+                    <h2>Schedule a New Call</h2>
+                    <form id="schedule-form">
+                        <div class="form-group">
+                            <label for="call-title">Call Title</label>
+                            <input type="text" id="call-title" required placeholder="Team Meeting">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="call-date">Date</label>
+                            <input type="date" id="call-date" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="call-time">Time</label>
+                            <input type="time" id="call-time" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="call-duration">Duration (minutes)</label>
+                            <select id="call-duration">
+                                <option value="15">15 minutes</option>
+                                <option value="30" selected>30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60">60 minutes</option>
+                                <option value="90">90 minutes</option>
+                                <option value="120">120 minutes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="call-participants">Participants (comma-separated emails)</label>
+                            <input type="text" id="call-participants" placeholder="john@example.com, jane@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="call-description">Description (optional)</label>
+                            <textarea id="call-description" rows="3" placeholder="Agenda or notes for the meeting"></textarea>
+                        </div>
+
+                        <button type="submit">Schedule Call</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-content" id="upcoming-tab">
+                <div class="card">
+                    <h2>Upcoming Calls</h2>
+                    <div id="scheduled-calls" class="scheduled-calls">
+                        <!-- Dynamic content will be added here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="video-call-tab">
+                <div class="card video-container">
+                    <h2 id="active-call-title">Call Title</h2>
+
+                    <div class="video-wrapper">
+                        <video id="local-video" autoplay muted></video>
+                    </div>
+
+                    <div class="video-controls">
+                        <button id="toggle-audio" class="btn-secondary">
+                            <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                        </button>
+
+                        <button id="toggle-video" class="btn-secondary">
+                            <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="10" rx="2" ry="2"></rect>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+
+                        <button id="share-screen" class="btn-secondary">
+                            <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                        </button>
+
+                        <button id="toggle-chat" class="btn-secondary">
+                            <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                        </button>
+
+                        <button id="end-call" class="btn-error">
+                            <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <h3>Participants</h3>
+                    <div id="participant-videos" class="participant-videos">
+                        <!-- Participant videos will be added here -->
+                    </div>
+
+                    <div id="chat-panel" class="chat-panel hidden">
+                        <div id="chat-messages" class="chat-messages">
+                            <!-- Chat messages will be added here -->
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chat-input" placeholder="Type your message...">
+                            <button id="send-message">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated database for calls
+        let scheduledCalls = [];
+        let activeCall = null;
+        let callId = 0;
+
+        // UI Elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const scheduleForm = document.getElementById('schedule-form');
+        const scheduledCallsContainer = document.getElementById('scheduled-calls');
+
+        // Video call elements
+        const localVideo = document.getElementById('local-video');
+        const participantVideos = document.getElementById('participant-videos');
+        const toggleAudioButton = document.getElementById('toggle-audio');
+        const toggleVideoButton = document.getElementById('toggle-video');
+        const shareScreenButton = document.getElementById('share-screen');
+        const toggleChatButton = document.getElementById('toggle-chat');
+        const endCallButton = document.getElementById('end-call');
+        const chatPanel = document.getElementById('chat-panel');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendMessageButton = document.getElementById('send-message');
+        const activeCallTitle = document.getElementById('active-call-title');
+
+        // Tab Navigation
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+
+        // Form submission
+        scheduleForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('call-title').value;
+            const date = document.getElementById('call-date').value;
+            const time = document.getElementById('call-time').value;
+            const duration = document.getElementById('call-duration').value;
+            const participants = document.getElementById('call-participants').value.split(',').map(email => email.trim());
+            const description = document.getElementById('call-description').value;
+
+            const newCall = {
+                id: ++callId,
+                title,
+                dateTime: `${date}T${time}`,
+                duration,
+                participants,
+                description,
+                status: 'scheduled'
+            };
+
+            // This would typically be an API call to Zitsu
+            createCall(newCall)
+                .then(createdCall => {
+                    scheduledCalls.push(createdCall);
+                    renderScheduledCalls();
+                    scheduleForm.reset();
+
+                    // Switch to upcoming tab
+                    tabs[1].click();
+                })
+                .catch(error => {
+                    console.error('Error creating call:', error);
+                    alert('Failed to schedule call. Please try again.');
+                });
+        });
+
+        // Mock API calls
+        function createCall(callData) {
+            // In a real app, this would be an API call to Zitsu
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        ...callData,
+                        joinUrl: `https://zitsu.example.com/join/${callData.id}`,
+                        created: new Date().toISOString()
+                    });
+                }, 500);
+            });
+        }
+
+        function joinCall(callId) {
+            // In a real app, this would connect to Zitsu's API
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const call = scheduledCalls.find(c => c.id === callId);
+                    if (!call) {
+                        reject(new Error('Call not found'));
+                        return;
+                    }
+
+                    activeCall = {
+                        ...call,
+                        status: 'active',
+                        startTime: new Date().toISOString(),
+                        participants: [
+                            { id: 'self', name: 'You', isLocal: true },
+                            ...call.participants.map((email, index) => ({
+                                id: `participant-${index}`,
+                                name: email.split('@')[0],
+                                isLocal: false
+                            }))
+                        ]
+                    };
+
+                    resolve(activeCall);
+                }, 1000);
+            });
+        }
+
+        function endCall() {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    if (activeCall) {
+                        const updatedCall = {
+                            ...activeCall,
+                            status: 'ended',
+                            endTime: new Date().toISOString()
+                        };
+
+                        // Update in the scheduled calls list
+                        const index = scheduledCalls.findIndex(c => c.id === activeCall.id);
+                        if (index !== -1) {
+                            scheduledCalls[index] = updatedCall;
+                        }
+
+                        activeCall = null;
+                        resolve(updatedCall);
+                    } else {
+                        resolve(null);
+                    }
+                }, 500);
+            });
+        }
+
+        // Render Functions
+        function renderScheduledCalls() {
+            scheduledCallsContainer.innerHTML = '';
+
+            if (scheduledCalls.length === 0) {
+                scheduledCallsContainer.innerHTML = '<p>No upcoming calls scheduled.</p>';
+                return;
+            }
+
+            scheduledCalls.forEach(call => {
+                const callDate = new Date(call.dateTime);
+                const callElement = document.createElement('div');
+                callElement.className = 'call-item';
+
+                const statusBadge = document.createElement('span');
+                statusBadge.className = `badge badge-${call.status === 'active' ? 'active' : 'upcoming'}`;
+                statusBadge.textContent = call.status === 'active' ? 'Active' : 'Upcoming';
+
+                callElement.innerHTML = `
+                    <div class="call-info">
+                        <h3>${call.title} ${statusBadge.outerHTML}</h3>
+                        <p>${callDate.toLocaleString()}</p>
+                        <p>Duration: ${call.duration} minutes</p>
+                        <p>Participants: ${call.participants.join(', ')}</p>
+                    </div>
+                    <div class="call-actions">
+                        <button class="join-call" data-id="${call.id}">Join</button>
+                        <button class="cancel-call btn-error" data-id="${call.id}">Cancel</button>
+                    </div>
+                `;
+
+                scheduledCallsContainer.appendChild(callElement);
+            });
+
+            // Add event listeners to buttons
+            document.querySelectorAll('.join-call').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const callId = parseInt(e.target.getAttribute('data-id'));
+                    startVideoCall(callId);
+                });
+            });
+
+            document.querySelectorAll('.cancel-call').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const callId = parseInt(e.target.getAttribute('data-id'));
+                    cancelCall(callId);
+                });
+            });
+        }
+
+        function startVideoCall(callId) {
+            // Request camera and microphone permissions
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(stream => {
+                    // Set local video stream
+                    localVideo.srcObject = stream;
+
+                    // Join the call
+                    return joinCall(callId);
+                })
+                .then(call => {
+                    // Update UI for active call
+                    activeCallTitle.textContent = call.title;
+                    renderParticipants(call.participants);
+
+                    // Switch to video call tab
+                    tabs[2].click();
+                })
+                .catch(error => {
+                    console.error('Error starting video call:', error);
+                    alert('Failed to start video call. Please ensure camera and microphone permissions are granted.');
+                });
+        }
+
+        function renderParticipants(participants) {
+            participantVideos.innerHTML = '';
+
+            participants.filter(p => !p.isLocal).forEach(participant => {
+                const participantElement = document.createElement('div');
+                participantElement.className = 'participant-video';
+                participantElement.innerHTML = `
+                    <video id="video-${participant.id}" autoplay></video>
+                    <div class="participant-name">${participant.name}</div>
+                `;
+
+                participantVideos.appendChild(participantElement);
+
+                // In a real implementation, we would connect to the
+                // remote participant's video stream here
+                // For demo purposes, we'll just show a placeholder
+                simulateParticipantVideo(participant.id);
+            });
+        }
+
+        function simulateParticipantVideo(participantId) {
+            // This is just for demonstration
+            // In a real app, this would connect to the Zitsu API
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 360;
+            const ctx = canvas.getContext('2d');
+
+            // Draw a colored rectangle with the participant's name
+            const colorMap = {
+                0: '#4C9AFF',
+                1: '#6554C0',
+                2: '#00B8D9',
+                3: '#36B37E',
+                4: '#FF5630'
+            };
+
+            const idNumber = parseInt(participantId.split('-')[1]) || 0;
+            const color = colorMap[idNumber % 5];
+
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = 'white';
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const videoElement = document.getElementById(`video-${participantId}`);
+            if (videoElement) {
+                // Convert canvas to video stream
+                const stream = canvas.captureStream();
+                videoElement.srcObject = stream;
+
+                // Animate the canvas to simulate video
+                setInterval(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = color;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    const now = new Date();
+                    ctx.fillStyle = 'white';
+                    ctx.font = '30px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(`Participant Video`, canvas.width / 2, canvas.height / 2 - 20);
+                    ctx.font = '20px Arial';
+                    ctx.fillText(now.toLocaleTimeString(), canvas.width / 2, canvas.height / 2 + 20);
+                }, 1000);
+            }
+        }
+
+        function cancelCall(callId) {
+            if (confirm('Are you sure you want to cancel this call?')) {
+                // In a real app, this would be an API call to Zitsu
+                scheduledCalls = scheduledCalls.filter(call => call.id !== callId);
+                renderScheduledCalls();
+            }
+        }
+
+        // Video call controls
+        toggleAudioButton.addEventListener('click', () => {
+            const stream = localVideo.srcObject;
+            if (stream) {
+                const audioTracks = stream.getAudioTracks();
+                audioTracks.forEach(track => {
+                    track.enabled = !track.enabled;
+                });
+
+                toggleAudioButton.classList.toggle('btn-error');
+            }
+        });
+
+        toggleVideoButton.addEventListener('click', () => {
+            const stream = localVideo.srcObject;
+            if (stream) {
+                const videoTracks = stream.getVideoTracks();
+                videoTracks.forEach(track => {
+                    track.enabled = !track.enabled;
+                });
+
+                toggleVideoButton.classList.toggle('btn-error');
+            }
+        });
+
+        shareScreenButton.addEventListener('click', () => {
+            if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+                navigator.mediaDevices.getDisplayMedia({ video: true })
+                    .then(screenStream => {
+                        // Store original camera stream to restore later
+                        const originalStream = localVideo.srcObject;
+                        const originalVideoTracks = originalStream.getVideoTracks();
+
+                        // Replace camera with screen share
+                        const videoTrack = screenStream.getVideoTracks()[0];
+                        const sender = peerConnection.getSenders().find(s =>
+                            s.track.kind === videoTrack.kind
+                        );
+
+                        if (sender) {
+                            sender.replaceTrack(videoTrack);
+                        }
+
+                        localVideo.srcObject = screenStream;
+
+                        // Listen for the end of screen sharing
+                        videoTrack.addEventListener('ended', () => {
+                            if (originalVideoTracks.length > 0) {
+                                const cameraTrack = originalVideoTracks[0];
+
+                                // Replace screen share with camera
+                                const sender = peerConnection.getSenders().find(s =>
+                                    s.track.kind === cameraTrack.kind
+                                );
+
+                                if (sender) {
+                                    sender.replaceTrack(cameraTrack);
+                                }
+
+                                localVideo.srcObject = originalStream;
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error sharing screen:', error);
+                        alert('Failed to share screen. Please try again.');
+                    });
+            } else {
+                alert('Screen sharing is not supported in your browser.');
+            }
+        });
+
+        toggleChatButton.addEventListener('click', () => {
+            chatPanel.classList.toggle('hidden');
+        });
+
+        endCallButton.addEventListener('click', () => {
+            if (confirm('Are you sure you want to end the call?')) {
+                endCall()
+                    .then(() => {
+                        // Stop all tracks
+                        const stream = localVideo.srcObject;
+                        if (stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                        }
+
+                        localVideo.srcObject = null;
+
+                        // Clear participant videos
+                        participantVideos.innerHTML = '';
+
+                        // Reset chat
+                        chatMessages.innerHTML = '';
+                        chatPanel.classList.add('hidden');
+
+                        // Switch back to upcoming tab
+                        tabs[1].click();
+
+                        // Update scheduled calls list
+                        renderScheduledCalls();
+                    })
+                    .catch

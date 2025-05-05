@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillXchange - Add New Course</title>
+    <style>
+        :root {
+            --primary-color: #159952;
+            --secondary-color: #0e7a3f;
+            --background-light: #f4f6f7;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body{
+            background-color: #f9f9f9;
+            margin: 0;
+            padding-bottom: 100px;
+            font-family: 'Arial', sans-serif;
+        }
+
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .nav-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        #courses-list {
+            margin-top: 30px;
+        }
+
+        .course-item {
+            background-color: var(--background-light);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .course-details {
+            flex-grow: 1;
+        }
+
+        .course-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .enrollment-info {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .join-btn {
+            background-color: #159952;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .join-btn:hover {
+            background-color: #10b981;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .schedule-meeting-btn {
+            display: block;
+            margin-top: 12px;
+            text-decoration: none;
+        }
+
+        .meeting-schedule-button {
+            width: 100%;
+            background-color: #159952;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .meeting-schedule-button:hover {
+            background-color: #10b981;
+            transform: translateY(-2px);
+        }
+         /* Bottom Navigation - IMPROVED */
+         .bottom-nav {
+                background-color: white;
+                padding: 15px 0;
+                box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                /* max-width: 1200px; */
+                border-radius: 16px 16px 0 0;
+                z-index: 100;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .nav-list {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 0;
+                list-style: none;
+            }
+
+            .nav-item {
+                text-align: center;
+                position: relative;
+            }
+
+            .nav-link {
+                text-decoration: none;
+                color: #6b7280;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                font-size: 14px;
+                font-weight: 500;
+                transition: color 0.3s ease;
+                padding: 8px 12px;
+            }
+
+            .nav-link:hover {
+                color: #159952;
+            }
+
+            .nav-link.active {
+                color: #159952;
+            }
+
+            .nav-link.active::after {
+                content: '';
+                position: absolute;
+                bottom: -8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 6px;
+                height: 6px;
+                background-color: #159952;
+                border-radius: 50%;
+            }
+
+            .nav-icon {
+                width: 24px;
+                height: 24px;
+                margin-bottom: 6px;
+                fill: currentColor;
+                transition: transform 0.2s ease;
+            }
+
+            .nav-link:hover .nav-icon {
+                transform: translateY(-2px);
+            }
+
+            .menu-icon {
+                width: 20px;
+                height: 20px;
+                border-top: 2px solid currentColor;
+                border-bottom: 2px solid currentColor;
+                position: relative;
+            }
+
+            .menu-icon::after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: currentColor;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            /* Responsive styles */
+            @media (min-width: 768px) {
+                .container {
+                    padding: 24px;
+                }
+
+                .welcome-section h1 {
+                    font-size: 2.5rem;
+                }
+
+                .welcome-section h2 {
+                    font-size: 3rem;
+                }
+
+                .categories-grid {
+                    gap: 24px;
+                }
+
+                .category-card {
+                    padding: 24px;
+                    min-height: 200px;
+                }
+
+                .category-card h3 {
+                    font-size: 1.5rem;
+                }
+
+                .category-card p {
+                    font-size: 1.1rem;
+                }
+
+                .category-image {
+                    width: 96px;
+                    height: 96px;
+                    bottom: 16px;
+                    right: 16px;
+                }
+
+                .professor-banner {
+                    padding: 24px;
+                }
+
+                .professor-icon {
+                    width: 48px;
+                    height: 48px;
+                }
+
+                .professor-info span {
+                    font-size: 1.25rem;
+                }
+
+                .footer-content {
+                    grid-template-columns: repeat(4, 1fr);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .footer-content {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 32px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .footer-content {
+                    grid-template-columns: 1fr;
+                    gap: 24px;
+                }
+            }
+
+            @media (max-width: 360px) {
+                .categories-grid {
+                    gap: 8px;
+                }
+
+                .category-card {
+                    padding: 12px;
+                    min-height: 140px;
+                }
+
+                .category-card h3 {
+                    font-size: 1rem;
+                }
+
+                .category-card p {
+                    font-size: 0.8rem;
+                }
+
+                .category-image {
+                    width: 50px;
+                    height: 50px;
+                }
+            }
+            .filter-section {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .filter-section select {
+                flex: 1;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                color: var(--text-dark);
+            }
+            .user-profile {
+            position: relative;
+            cursor: pointer;
+        }
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #065f46;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+        .profile-dropdown {
+            position: absolute;
+            right: 0;
+            top: 50px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 10px;
+            min-width: 200px;
+            display: none;
+            z-index: 100;
+        }
+        .profile-dropdown.active {
+            display: block;
+        }
+        .profile-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .profile-item:last-child {
+            border-bottom: none;
+        }
+        .profile-item.logout {
+            color: #e53e3e;
+            cursor: pointer;
+        }
+        .nav-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: white;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+        .alert {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="user-profile" id="userProfile">
+            <div class="profile-icon" id="profileInitial">U</div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-item" id="profileUsername">Username: Loading...</div>
+                <div class="profile-item" id="profileEmail">Email: Loading...</div>
+                <div class="profile-item logout" onclick="logout()">Logout</div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Add New Course</h1>
+
+        <!-- Status alerts -->
+        <div id="alertContainer"></div>
+
+        <form id="course-form">
+            <div class="form-group">
+                <label for="course-title">Course Title</label>
+                <input type="text" id="course-title" required>
+            </div>
+            <div class="form-group">
+                <label for="instructor-name">Instructor Name</label>
+                <input type="text" id="instructor-name" required>
+            </div>
+            <div class="form-group">
+                <label for="skill-category">Skill Category</label>
+                <select id="skill-category" required>
+                    <option value="">Select Category</option>
+                    <option value="programming">Programming</option>
+                    <option value="design">Design</option>
+                    <option value="languages">Languages</option>
+                    <option value="music">Music</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="skill-level">Skill Level</label>
+                <select id="skill-level" required>
+                    <option value="">Select Level</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="course-description">Course Description</label>
+                <textarea id="course-description" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="max-students">Maximum Students</label>
+                <input type="number" id="max-students" min="1" max="50" required>
+            </div>
+            <button type="submit" class="btn">Add Course</button>
+        </form>
+
+        <div id="courses-list">
+            <h2>Your Courses</h2>
+            <div class="filter-section">
+                <select id="category-filter" onchange="applyCourseFilters()">
+                    <option value="">All Categories</option>
+                    <option value="programming">Programming</option>
+                    <option value="design">Design</option>
+                    <option value="languages">Languages</option>
+                    <option value="music">Music</option>
+                </select>
+                <select id="level-filter" onchange="applyCourseFilters()">
+                    <option value="">All Levels</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+            </div>
+            <div id="instructor-courses"></div>
+        </div>
+
+        <div class="nav-links">
+            <a href="index.html">Back to Meetings</a>
+            <a href="view-courses.html">View All Courses</a>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a href="./bypass.html" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2.1L1 12h3v9h7v-6h2v6h7v-9h3L12 2.1zm0 2.691l6 5.4V19h-3v-6H9v6H6v-8.809l6-5.4z"/>
+                    </svg>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="Teachingpeer.html" class="nav-link active">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3h-4.18C14.25 1.28 12.77 0 11 0S7.75 1.28 7.18 3H3C1.9 3 1 3.9 1 5v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 0c.83 0 1.5.67 1.5 1.5S11.83 6 11 6s-1.5-.67-1.5-1.5S10.17 3 11 3zm2 14H6v-2h7v2zm3-4H6v-2h10v2zm0-4H6V7h10v2z"/>
+                    </svg>
+                    <span>Teaching <br> Peer</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="./bypass.html" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                    </svg>
+                    <span> Learning <br> Peer</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="./Coomingsoon.html" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                    </svg>
+                    <span>Ingroup</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="./Coomingsoon.html" class="nav-link">
+                    <div class="menu-icon"></div>
+                    <span>Menu</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <script>
+        // API Base URL Configuration
+        const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://intigrated-project-4.onrender.com';
+
+        // Utility Functions
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertContainer.appendChild(alertDiv);
+
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Check Authentication
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'second.html'; // Redirect to login page
+                return false;
+            }
+            return token;
+        }
+
+        // Course Form Submission
+        const courseForm = document.getElementById('course-form');
+        courseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const token = checkAuth();
+            if (!token) return;
+
+            // Collect form data
+            const course = {
+                courseTitle: document.getElementById('course-title').value,
+                instructorName: document.getElementById('instructor-name').value,
+                skillCategory: document.getElementById('skill-category').value,
+                skillLevel: document.getElementById('skill-level').value,
+                courseDescription: document.getElementById('course-description').value,
+                maxStudents: document.getElementById('max-students').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/courses`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(course)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to create course');
+                }
+
+                // Reset form
+                courseForm.reset();
+
+                // Reload courses
+                showAlert('Course created successfully!');
+                await fetchMyCourses();
+
+            } catch (error) {
+                console.error('Error creating course:', error);
+                showAlert(error.message, 'danger');
+            }
+        });
+
+        // Store all courses for filtering
+        let allMyCourses = [];
+
+        // Fetch user's courses from the API
+        async function fetchMyCourses() {
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/courses/my-courses`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to fetch courses');
+                }
+
+                const courses = await response.json();
+                allMyCourses = courses; // Store for filtering
+
+                // Apply any active filters
+                applyCourseFilters();
+
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+                document.getElementById('instructor-courses').innerHTML =
+                    '<p style="text-align:center; color:#7f8c8d;">Error loading courses: ' + error.message + '</p>';
+            }
+        }
+
+        // Filter Courses
+        function applyCourseFilters() {
+            const categoryFilter = document.getElementById('category-filter').value;
+            const levelFilter = document.getElementById('level-filter').value;
+
+            // Apply filters
+            let filteredCourses = [...allMyCourses];
+
+            if (categoryFilter) {
+                filteredCourses = filteredCourses.filter(course => course.skillCategory === categoryFilter);
+            }
+
+            if (levelFilter) {
+                filteredCourses = filteredCourses.filter(course => course.skillLevel === levelFilter);
+            }
+
+            // Render the filtered courses
+            renderInstructorCourses(filteredCourses);
+        }
+
+        // Render Instructor Courses
+        async function renderInstructorCourses(courses) {
+            const instructorCoursesList = document.getElementById('instructor-courses');
+
+            // Clear previous courses
+            instructorCoursesList.innerHTML = '';
+
+            if (!courses || courses.length === 0) {
+                instructorCoursesList.innerHTML = '<p style="text-align:center; color:#7f8c8d;">No courses found</p>';
+                return;
+            }
+
+            for (const course of courses) {
+                const courseItem = document.createElement('div');
+                courseItem.classList.add('course-item');
+
+                // Get enrollment count for this course
+                let enrollmentCount = 0;
+                try {
+                    const countResponse = await fetch(`${API_BASE_URL}/courses/${course._id}/enrollment-count`);
+                    if (countResponse.ok) {
+                        const countData = await countResponse.json();
+                        enrollmentCount = countData.count;
+                    }
+                } catch (error) {
+                    console.error('Error fetching enrollment count:', error);
+                }
+
+                courseItem.innerHTML = `
+                    <div class="course-details">
+                        <strong>${course.courseTitle}</strong>
+                        <p>Instructor: ${course.instructorName}</p>
+                        <p>Level: ${course.skillLevel} | Category: ${course.skillCategory}</p>
+                        <p class="enrollment-info">Enrollments: ${enrollmentCount}/${course.maxStudents}</p>
+                    </div>
+                    <div class="course-actions">
+                        <a href="index.html?id=${course._id}" class="join-btn">Join</a>
+                        <button onclick="deleteCourse('${course._id}')" class="delete-btn">Delete</button>
+                    </div>
+                `;
+                instructorCoursesList.appendChild(courseItem);
+            }
+        }
+
+        // Delete Course
+        async function deleteCourse(courseId) {
+            const token = checkAuth();
+            if (!token) return;
+
+            if (!confirm('Are you sure you want to delete this course?')) {
+                return;
+            }̥
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to delete course');
+                }
+
+                showAlert('Course deleted successfully!');
+                fetchMyCourses(); // Refresh the course list
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                showAlert('Error deleting course: ' + error.message, 'danger');
+            }
+        }
+
+        // Load User Profile
+        async function loadUserProfile() {
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to load profile');
+                }
+
+                const userData = await response.json();
+
+                // Update profile dropdown with user data
+                document.getElementById('profileUsername').textContent = `Username: ${userData.username}`;
+                document.getElementById('profileEmail').textContent = `Email: ${userData.email}`;
+
+                // Set profile initial
+                if (userData.username) {
+                    document.getElementById('profileInitial').textContent = userData.username.charAt(0).toUpperCase();
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showAlert('Error loading profile: ' + error.message, 'danger');
+            }
+        }
+
+        // Function to logout
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'second.html'; // Redirect to login page
+        }
+
+        // Toggle profile dropdown
+        const userProfile = document.getElementById('userProfile');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        userProfile.addEventListener('click', function() {
+            profileDropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!userProfile.contains(event.target)) {
+                profileDropdown.classList.remove('active');
+            }
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserProfile();
+            fetchMyCourses();
+        });
+    </script>
+</body>
+</html>

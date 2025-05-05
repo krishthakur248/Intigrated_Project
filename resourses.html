@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - SkillXchange</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #00a67d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        header {
+            background-color: #005e45;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        .resource-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .resource-card:hover {
+            transform: translateY(-5px);
+        }
+        .resource-image {
+            height: 160px;
+            background-color: #e9f7f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .resource-content {
+            padding: 20px;
+        }
+        .resource-content h3 {
+            color: #005e45;
+            margin-top: 0;
+        }
+        .resource-tag {
+            background-color: #e9f7f4;
+            color: #00a67d;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .cta-button {
+            background-color: #00a67d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            display: inline-block;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex;">
+        <a href="SkillXchange.html" class="back-button">&larr; Back</a>
+        <img style="margin:0 auto; padding-top: 7vh;" height="190vh" src="Free (1).png" alt="SkillXchange Logo" />
+    </div>
+    <div class="resources-grid">
+        <div class="resource-card">
+            <div class="resource-image">
+                <img src="/api/placeholder/300/160" alt="Lesson Plan Template">
+            </div>
+            <div class="resource-content">
+                <span class="resource-tag">Template</span>
+                <span class="resource-tag">For Teachers</span>
+                <h3>Lesson Plan Template</h3>
+                <p>Structure your teaching sessions effectively with this customizable lesson plan template. Perfect for first-time teachers.</p>
+                <a href="#" class="cta-button">Download Template</a>
+            </div>
+        </div>
+
+        <div class="resource-card">
+            <div class="resource-image">
+                <img src="/api/placeholder/300/160" alt="Learning Journal">
+            </div>
+            <div class="resource-content">
+                <span class="resource-tag">Template</span>
+                <span class="resource-tag">For Learners</span>
+                <h3>Learning Journal</h3>
+                <p>Track your progress and reflect on what you've learned with this structured learning journal template.</p>
+                <a href="#" class="cta-button">Download Template</a>
+            </div>
+        </div>
+
+        <div class="resource-card">
+            <div class="resource-image">
+                <img src="/api/placeholder/300/160" alt="Effective Teaching Guide">
+            </div>
+            <div class="resource-content">
+                <span class="resource-tag">Guide</span>
+                <span class="resource-tag">For Teachers</span>
+                <h3>Effective Teaching Techniques</h3>
+                <p>Learn proven methods for teaching skills effectively, even if you've never taught before.</p>
+                <a href="#" class="cta-button">View Guide</a>
+            </div>
+        </div>
+
+        <div class="resource-card">
+            <div class="resource-image">
+                <img src="/api/placeholder/300/160" alt="Accelerated Learning">
+            </div>
+            <div class="resource-content">
+                <span class="resource-tag">Guide</span>
+                <span class="resource-tag">For Learners</span>
+                <h3>Accelerated Learning Methods</h3>
+                <p>Techniques to help you learn faster and retain more when acquiring new skills through exchanges.</p>
+                <a href="#" class="cta-button">View Guide</a>
+            </div>
+        </div>
+
+        <div class="resource-card">
+            <div class="resource-image">
+                <img src="/api/placeholder/300/160" alt="Virtual Teaching Tools">
+            </div>
+            <div class="resource-content">
+                <span class="resource-tag">Tools</span>
+                <span class="resource-tag">For Everyone</span>
+                <h3>Virtual Teaching Tools</h3>
+                <p>A curated collection of free and low-cost tools that make virtual skill exchanges more effective.</p>
+                <a href="#" class="cta-button">Browse Tools</a>
+            </div>
+        </div>
+
+        <div class="resource-card">
+            <div class="resource-image">
+                <img src="/api/placeholder/300/160" alt="Feedback Framework">
+            </div>
+            <div class="resource-content">
+                <span class="resource-tag">Guide</span>
+                <span class="resource-tag">For Everyone</span>
+                <h3>Constructive Feedback Framework</h3>
+                <p>Learn how to give and receive feedback that helps both parties grow and improve.</p>
+                <a href="#" class="cta-button">View Guide</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
