@@ -438,6 +438,12 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        .jbn{
+            background-color: green;
+            padding: 4.2px;
+            border-radius: 3px;
+            border: 0;
+        }
     </style>
 </head>
 <body>
@@ -722,6 +728,7 @@
                         </div>
                     </div>
                     <div class="course-actions">
+                        <button class="jbn" data-id="${course._id}"> <a href="./index.html" style="color:white; text-decoration:none;" > Join </a> </button>
                         <button class="delete-btn" data-id="${course._id}">Delete</button>
                     </div>
                 `;
