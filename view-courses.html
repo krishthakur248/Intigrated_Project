@@ -87,7 +87,7 @@
 
         .btn {
             display: block;
-            width: 100%;
+            width: 40%;
             padding: 10px;
             background-color: var(--primary-color);
             color: white;
@@ -390,7 +390,14 @@
             top: 0;
             z-index: 200;
         }
-
+        .newmy{
+            display: flex;
+            justify-content: space-between;
+            color: white;
+        }
+        .newmy > button{
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -623,7 +630,7 @@
                 
                 let actionButton = '';
                 if (isCreator) {
-                    actionButton = `<div class="enrollment-status"> <a href="./index.html"> Join Course </a> </div>`;
+                    actionButton = `<div class="enrollment-status">Your Course</div>`;
                 } else if (isEnrolled) {
                     actionButton = `
                         <div class="enrollment-status">Enrolled</div>
@@ -680,7 +687,11 @@
                     <p>Instructor: ${course.instructorName}</p>
                     <p>Category: ${course.skillCategory} | Level: ${course.skillLevel}</p>
                     <p>Enrolled on: ${new Date(enrollment.enrollmentDate).toLocaleDateString()}</p>
-                    <button class="btn btn-secondary unenroll-btn" data-id="${course._id}">Unenroll</button>
+                    <div class="newmy">
+                        <button class="btn btn-secondary unenroll-btn" data-id="${course._id}"> <a href="./index.html" style="color:white;text-decoration: none;"> Join Now </a> </button>
+                        <button class="btn btn-secondary unenroll-btn" data-id="${course._id}">Unenroll</button>
+                    </div>
+
                 `;
                 
                 enrollmentsList.appendChild(enrollmentItem);
