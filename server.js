@@ -125,6 +125,169 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// WebSocket connection handler
+wss.on('connection', function connection(ws, req) {
+  // Extract courseId and token from URL
+  const url = new URL(req.url, 'http://localhost');
+  const urlParts = url.pathname.split('/');
+  const courseId = urlParts[urlParts.length - 1];
+  const token = url.searchParams.get('token');
+
+  // Verify token
+  jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+    if (err) {
+      ws.close();
+      return;
+    }
+
+    const userId = decoded.userId;
+
+    try {
+      // Get user info
+      const user = await User.findById(userId).select("username");
+
+      if (!user) {
+        ws.close();
+        return;
+      }
+
+      // Store connection with user and course info
+      if (!activeConnections.has(courseId)) {
+        activeConnections.set(courseId, new Map());
+      }
+      activeConnections.get(courseId).set(userId, ws);
+
+      // Send initial presence message
+      broadcastToCourse(courseId, {
+        type: 'presence',
+        userId: userId,
+        action: 'join'
+      });
+
+      // System message for user joining
+      const joinMessage = new Message({
+        courseId: courseId,
+        sender: userId,
+        content: `${user.username} has joined the chat`,
+        timestamp: new Date(),
+        type: 'system'
+      });
+
+      await joinMessage.save();
+
+      broadcastToCourse(courseId, {
+        type: 'system',
+        content: `${user.username} has joined the chat`,
+        timestamp: new Date().toISOString()
+      });
+
+      // Handle incoming messages
+      ws.on('message', async (data) => {
+        try {
+          const message = JSON.parse(data);
+
+          // Handle message based on type
+          switch (message.type) {
+            case 'chat':
+              // Save message to database
+              const newMessage = new Message({
+                courseId: message.courseId,
+                sender: userId,
+                content: message.content,
+                timestamp: new Date(),
+                type: 'chat'
+              });
+
+              const savedMessage = await newMessage.save();
+
+              // Broadcast to all users in course
+              broadcastToCourse(courseId, {
+                type: 'chat',
+                _id: savedMessage._id.toString(),
+                courseId: savedMessage.courseId.toString(),
+                content: savedMessage.content,
+                timestamp: savedMessage.timestamp.toISOString(),
+                sender: {
+                  _id: userId,
+                  username: message.sender.username
+                }
+              });
+              break;
+
+            case 'presence':
+              // Broadcast presence update
+              broadcastToCourse(courseId, {
+                type: 'presence',
+                userId: userId,
+                action: message.action
+              });
+              break;
+          }
+        } catch (error) {
+          console.error('Error processing message:', error);
+        }
+      });
+
+      // Handle disconnection
+      ws.on('close', async () => {
+        // Remove from active connections
+        if (activeConnections.has(courseId)) {
+          activeConnections.get(courseId).delete(userId);
+
+          // If no users left in course, delete course entry
+          if (activeConnections.get(courseId).size === 0) {
+            activeConnections.delete(courseId);
+          }
+        }
+
+        // Broadcast leave message
+        broadcastToCourse(courseId, {
+          type: 'presence',
+          userId: userId,
+          action: 'leave'
+        });
+
+        // Add system message for user leaving
+        try {
+          const leaveMessage = new Message({
+            courseId: courseId,
+            sender: userId,
+            content: `${user.username} has left the chat`,
+            timestamp: new Date(),
+            type: 'system'
+          });
+
+          await leaveMessage.save();
+
+          broadcastToCourse(courseId, {
+            type: 'system',
+            content: `${user.username} has left the chat`,
+            timestamp: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error('Error saving leave message:', error);
+        }
+      });
+
+    } catch (error) {
+      console.error('WebSocket error:', error);
+      ws.close();
+    }
+  });
+});
+
+// Function to broadcast messages to all users in a course
+function broadcastToCourse(courseId, message) {
+  if (!activeConnections.has(courseId)) return;
+
+  const connections = activeConnections.get(courseId);
+  connections.forEach((ws) => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(message));
+    }
+  });
+}
+
 // Signup Route
 app.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
@@ -327,168 +490,23 @@ app.get("/courses/:id/enrollment-count", async (req, res) => {
   }
 });
 
-// WebSocket connection handler
-wss.on('connection', function connection(ws, req) {
-  // Extract courseId and token from URL
-  const url = new URL(req.url, 'http://localhost');
-  const urlParts = url.pathname.split('/');
-  const courseId = urlParts[urlParts.length - 1];
-  const token = url.searchParams.get('token');
+// Unenroll from a course
+app.delete("/enrollments/:courseId", verifyToken, async (req, res) => {
+  try {
+    const result = await Enrollment.findOneAndDelete({
+      course: req.params.courseId,
+      student: req.user.userId
+    });
 
-  // Verify token
-  jwt.verify(token, JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      ws.close();
-      return;
+    if (!result) {
+      return res.status(404).json({ message: "Enrollment not found" });
     }
 
-    const userId = decoded.userId;
-
-    try {
-      // Get user info
-      const user = await User.findById(userId).select("username");
-
-      if (!user) {
-        ws.close();
-        return;
-      }
-
-      // Store connection with user and course info
-      if (!activeConnections.has(courseId)) {
-        activeConnections.set(courseId, new Map());
-      }
-      activeConnections.get(courseId).set(userId, ws);
-
-      // Send initial presence message
-      broadcastToCourse(courseId, {
-        type: 'presence',
-        userId: userId,
-        action: 'join'
-      });
-
-      // System message for user joining
-      const joinMessage = new Message({
-        courseId: courseId,
-        sender: userId,
-        content: `${user.username} has joined the chat`,
-        timestamp: new Date(),
-        type: 'system'
-      });
-
-      await joinMessage.save();
-
-      broadcastToCourse(courseId, {
-        type: 'system',
-        content: `${user.username} has joined the chat`,
-        timestamp: new Date().toISOString()
-      });
-
-      // Handle incoming messages
-      ws.on('message', async (data) => {
-        try {
-          const message = JSON.parse(data);
-
-          // Handle message based on type
-          switch (message.type) {
-            case 'chat':
-              // Save message to database
-              const newMessage = new Message({
-                courseId: message.courseId,
-                sender: userId,
-                content: message.content,
-                timestamp: new Date(),
-                type: 'chat'
-              });
-
-              const savedMessage = await newMessage.save();
-
-              // Broadcast to all users in course
-              broadcastToCourse(courseId, {
-                type: 'chat',
-                _id: savedMessage._id.toString(),
-                courseId: savedMessage.courseId.toString(),
-                content: savedMessage.content,
-                timestamp: savedMessage.timestamp.toISOString(),
-                sender: {
-                  _id: userId,
-                  username: message.sender.username
-                }
-              });
-              break;
-
-            case 'presence':
-              // Broadcast presence update
-              broadcastToCourse(courseId, {
-                type: 'presence',
-                userId: userId,
-                action: message.action
-              });
-              break;
-          }
-        } catch (error) {
-          console.error('Error processing message:', error);
-        }
-      });
-
-      // Handle disconnection
-      ws.on('close', async () => {
-        // Remove from active connections
-        if (activeConnections.has(courseId)) {
-          activeConnections.get(courseId).delete(userId);
-
-          // If no users left in course, delete course entry
-          if (activeConnections.get(courseId).size === 0) {
-            activeConnections.delete(courseId);
-          }
-        }
-
-        // Broadcast leave message
-        broadcastToCourse(courseId, {
-          type: 'presence',
-          userId: userId,
-          action: 'leave'
-        });
-
-        // Add system message for user leaving
-        try {
-          const leaveMessage = new Message({
-            courseId: courseId,
-            sender: userId,
-            content: `${user.username} has left the chat`,
-            timestamp: new Date(),
-            type: 'system'
-          });
-
-          await leaveMessage.save();
-
-          broadcastToCourse(courseId, {
-            type: 'system',
-            content: `${user.username} has left the chat`,
-            timestamp: new Date().toISOString()
-          });
-        } catch (error) {
-          console.error('Error saving leave message:', error);
-        }
-      });
-
-    } catch (error) {
-      console.error('WebSocket error:', error);
-      ws.close();
-    }
-  });
+    res.json({ message: "Unenrolled successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to unenroll from course", error: error.message });
+  }
 });
-
-// Function to broadcast messages to all users in a course
-function broadcastToCourse(courseId, message) {
-  if (!activeConnections.has(courseId)) return;
-
-  const connections = activeConnections.get(courseId);
-  connections.forEach((ws) => {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(message));
-    }
-  });
-}
 
 // Get course messages
 router.get('/courses/:courseId/messages', verifyToken, async (req, res) => {
@@ -551,24 +569,6 @@ router.get('/courses/:id', async (req, res) => {
     res.json(course);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch course', error: error.message });
-  }
-});
-
-// Unenroll from a course
-app.delete("/enrollments/:courseId", verifyToken, async (req, res) => {
-  try {
-    const result = await Enrollment.findOneAndDelete({
-      course: req.params.courseId,
-      student: req.user.userId
-    });
-
-    if (!result) {
-      return res.status(404).json({ message: "Enrollment not found" });
-    }
-
-    res.json({ message: "Unenrolled successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to unenroll from course", error: error.message });
   }
 });
 
