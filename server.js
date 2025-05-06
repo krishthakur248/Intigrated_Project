@@ -10,16 +10,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Create router for structured routes
-const router = express.Router();
-app.use(router);
+// JWT Secret - should be in environment variables in production
+const JWT_SECRET = "secret_key";
 
 // Create HTTP server
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-
-// JWT Secret - should be in environment variables in production
-const JWT_SECRET = "secret_key";
 
 // Store active connections
 const activeConnections = new Map();
@@ -509,7 +505,7 @@ app.delete("/enrollments/:courseId", verifyToken, async (req, res) => {
 });
 
 // Get course messages
-router.get('/courses/:courseId/messages', verifyToken, async (req, res) => {
+app.get('/courses/:courseId/messages', verifyToken, async (req, res) => {
   try {
     const messages = await Message.find({ courseId: req.params.courseId })
       .sort({ timestamp: 1 })
@@ -524,7 +520,7 @@ router.get('/courses/:courseId/messages', verifyToken, async (req, res) => {
 });
 
 // Get course members
-router.get('/courses/:courseId/members', verifyToken, async (req, res) => {
+app.get('/courses/:courseId/members', verifyToken, async (req, res) => {
   try {
     // Find all enrollments for this course
     const enrollments = await Enrollment.find({ course: req.params.courseId })
@@ -557,7 +553,7 @@ router.get('/courses/:courseId/members', verifyToken, async (req, res) => {
 });
 
 // Get specific course by ID
-router.get('/courses/:id', async (req, res) => {
+app.get('/courses/:id', async (req, res) => {
   try {
     const course = await Course.findById(req.params.id)
       .populate('creator', 'username email');
