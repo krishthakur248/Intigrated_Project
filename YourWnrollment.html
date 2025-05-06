@@ -621,55 +621,56 @@
         }
 
         // Display user's enrollments
-        function displayEnrollments(enrollments) {
-            const enrollmentsGrid = document.getElementById('enrollments-grid');
-            enrollmentsGrid.innerHTML = '';
+        <!-- Update the action-buttons section in displayEnrollments function -->
+function displayEnrollments(enrollments) {
+    const enrollmentsGrid = document.getElementById('enrollments-grid');
+    enrollmentsGrid.innerHTML = '';
 
-            if (enrollments.length === 0) {
-                enrollmentsGrid.innerHTML = '<div class="no-courses">You are not enrolled in any courses yet. <br><br><a href="view-courses.html" class="btn">Browse Courses</a></div>';
-                return;
-            }
+    if (enrollments.length === 0) {
+        enrollmentsGrid.innerHTML = '<div class="no-courses">You are not enrolled in any courses yet. <br><br><a href="view-courses.html" class="btn">Browse Courses</a></div>';
+        return;
+    }
 
-            enrollments.forEach(enrollment => {
-                const course = enrollment.course;
+    enrollments.forEach(enrollment => {
+        const course = enrollment.course;
 
-                // Simulate a random progress for demonstration
-                const progress = Math.floor(Math.random() * 101); // 0-100%
+        // Simulate a random progress for demonstration
+        const progress = Math.floor(Math.random() * 101); // 0-100%
 
-                const enrollmentCard = document.createElement('div');
-                enrollmentCard.className = 'enrollment-card';
-                enrollmentCard.innerHTML = `
-                    <h3>${course.courseTitle}</h3>
-                    <div>
-                        <span class="badge">${course.skillLevel}</span>
-                        <span class="badge">${course.skillCategory}</span>
-                    </div>
-                    <p class="enrollment-date">Enrolled on: ${new Date(enrollment.enrollmentDate).toLocaleDateString()}</p>
-                    <p class="instructor">Instructor: ${course.instructorName}</p>
+        const enrollmentCard = document.createElement('div');
+        enrollmentCard.className = 'enrollment-card';
+        enrollmentCard.innerHTML = `
+            <h3>${course.courseTitle}</h3>
+            <div>
+                <span class="badge">${course.skillLevel}</span>
+                <span class="badge">${course.skillCategory}</span>
+            </div>
+            <p class="enrollment-date">Enrolled on: ${new Date(enrollment.enrollmentDate).toLocaleDateString()}</p>
+            <p class="instructor">Instructor: ${course.instructorName}</p>
 
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progress}%"></div>
-                        </div>
-                        <div class="progress-label">
-                            <span>Progress</span>
-                            <span>${progress}%</span>
-                        </div>
-                    </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progress}%"></div>
+                </div>
+                <div class="progress-label">
+                    <span>Progress</span>
+                    <span>${progress}%</span>
+                </div>
+            </div>
 
-                    <div class="action-buttons">
-                        <a href="./chat.html" class="btn">Join Session</a>
-                        <button class="btn btn-danger unenroll-btn" data-id="${course._id}">Unenroll</button>
-                    </div>
-                `;
+            <div class="action-buttons">
+                <a href="./chat.html?courseId=${course._id}" class="btn">Join Session</a>
+                <button class="btn btn-danger unenroll-btn" data-id="${course._id}">Unenroll</button>
+            </div>
+        `;
 
-                enrollmentsGrid.appendChild(enrollmentCard);
+        enrollmentsGrid.appendChild(enrollmentCard);
 
-                // Add event listener to unenroll button
-                const unenrollBtn = enrollmentCard.querySelector('.unenroll-btn');
-                unenrollBtn.addEventListener('click', () => unenrollFromCourse(course._id));
-            });
-        }
+        // Add event listener to unenroll button
+        const unenrollBtn = enrollmentCard.querySelector('.unenroll-btn');
+        unenrollBtn.addEventListener('click', () => unenrollFromCourse(course._id));
+    });
+}
 
         // Unenroll from a course
         async function unenrollFromCourse(courseId) {

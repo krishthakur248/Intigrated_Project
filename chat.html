@@ -648,392 +648,792 @@
         </ul>
     </nav>
     <script>
-        // API Base URL
-        const API_BASE_URL = 'https://intigrated-project-4.onrender.com';
-        let currentUser = null;
-        let currentCourse = null;
-        let socket = null;
-        let courseMembers = [];
-        let chatMessages = [];
-        let isCreator = false;
+// API Base URL
+const API_BASE_URL = 'https://intigrated-project-4.onrender.com';
+let currentUser = null;
+let currentCourse = null;
+let socket = null;
+let courseMembers = [];
+let chatMessages = [];
+let isCreator = false;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
 
-        // Get URL params
-        const urlParams = new URLSearchParams(window.location.search);
-        const courseId = urlParams.get('courseId');
+// Get URL params
+const urlParams = new URLSearchParams(window.location.search);
+const courseId = urlParams.get('courseId');
 
-        // Show alert message
-        function showAlert(message, type = 'success') {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
+// Show alert message
+function showAlert(message, type = 'success') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.textContent = message;
 
-            document.body.appendChild(alertDiv);
+    document.body.appendChild(alertDiv);
 
-            // Remove alert after 3 seconds
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 3000);
+    // Remove alert after 3 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+
+// Format date
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// Format full date for dividers
+function formatFullDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString([], {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+// Check if two dates are the same day
+function isSameDay(date1, date2) {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    return d1.getDate() === d2.getDate() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getFullYear() === d2.getFullYear();
+}
+
+// Get initials from name
+function getInitials(name) {
+    if (!name) return '?';
+    return name.split(' ').map(word => word[0]).join('').toUpperCase();
+}
+
+// Load user profile
+async function loadUserProfile() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            // Redirect to login if no token
+            window.location.href = 'second.html';
+            return;
         }
 
-        // Format date
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
-        // Format full date for dividers
-        function formatFullDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString([], {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-
-        // Check if two dates are the same day
-        function isSameDay(date1, date2) {
-            const d1 = new Date(date1);
-            const d2 = new Date(date2);
-            return d1.getDate() === d2.getDate() &&
-                d1.getMonth() === d2.getMonth() &&
-                d1.getFullYear() === d2.getFullYear();
-        }
-
-        // Get initials from name
-        function getInitials(name) {
-            if (!name) return '?';
-            return name.split(' ').map(word => word[0]).join('').toUpperCase();
-        }
-
-        // Load user profile
-        async function loadUserProfile() {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    // Redirect to login if no token
-                    window.location.href = 'second.html';
-                    return;
-                }
-
-                const response = await fetch(`${API_BASE_URL}/user/profile`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load profile');
-                }
-
-                currentUser = await response.json();
-
-                // Update profile dropdown with user data
-                document.getElementById('profileUsername').textContent = `Username: ${currentUser.username}`;
-                document.getElementById('profileEmail').textContent = `Email: ${currentUser.email}`;
-
-                // Set profile initial
-                if (currentUser.username) {
-                    document.getElementById('profileInitial').textContent = currentUser.username.charAt(0).toUpperCase();
-                }
-
-                // Load course details
-                await loadCourseDetails();
-            } catch (error) {
-                console.error('Error loading profile:', error);
-                showAlert('Failed to load profile. Please login again.', 'danger');
+        const response = await fetch(`${API_BASE_URL}/user/profile`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load profile');
+        }
+
+        currentUser = await response.json();
+        console.log("Current user loaded:", currentUser);
+
+        // Check if DOM elements exist before updating
+        const profileUsername = document.getElementById('profileUsername');
+        const profileEmail = document.getElementById('profileEmail');
+        const profileInitial = document.getElementById('profileInitial');
+
+        if (profileUsername) {
+            profileUsername.textContent = `Username: ${currentUser.username}`;
+        }
+
+        if (profileEmail) {
+            profileEmail.textContent = `Email: ${currentUser.email}`;
+        }
+
+        // Set profile initial
+        if (profileInitial && currentUser.username) {
+            profileInitial.textContent = currentUser.username.charAt(0).toUpperCase();
         }
 
         // Load course details
-        async function loadCourseDetails() {
+        await loadCourseDetails();
+    } catch (error) {
+        console.error('Error loading profile:', error);
+        showAlert('Failed to load profile. Please login again.', 'danger');
+    }
+}
+
+// Load course details
+async function loadCourseDetails() {
+    try {
+        if (!courseId) {
+            showAlert('Course ID is missing!', 'danger');
+            setTimeout(() => {
+                window.location.href = 'enrolled-courses.html';
+            }, 2000);
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        // First try with authentication
+        let response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        // If the above request fails, try without authentication header
+        if (!response.ok) {
+            console.log("Trying to fetch course without auth token");
+            response = await fetch(`${API_BASE_URL}/courses/${courseId}`);
+
+            if (!response.ok) {
+                console.error("Response status:", response.status);
+                const errorText = await response.text();
+                console.error("Error response:", errorText);
+                throw new Error(`Failed to fetch course details: ${response.status}`);
+            }
+        }
+
+        currentCourse = await response.json();
+        console.log("Course details loaded:", currentCourse);
+
+        // Check if the course has the expected structure
+        if (!currentCourse || !currentCourse.courseTitle) {
+            console.error("Invalid course data received:", currentCourse);
+            throw new Error('Invalid course data received');
+        }
+
+        // Update page title only if element exists
+        const courseTitleEl = document.getElementById('courseTitle');
+        if (courseTitleEl) {
+            courseTitleEl.textContent = currentCourse.courseTitle;
+            document.title = `Chat - ${currentCourse.courseTitle}`;
+        }
+
+        // Handle case where creator might be missing or incomplete
+        if (!currentCourse.creator) {
+            console.warn("Course creator information is missing");
+            currentCourse.creator = { _id: null };
+        }
+
+        // Check if user is creator
+        isCreator = currentCourse.creator && currentCourse.creator._id === currentUser._id;
+
+        // Initialize chat
+        initializeChat();
+
+        // Load course members and messages
+        try {
+            await loadCourseMembers();
+        } catch (memberError) {
+            console.error("Error loading members:", memberError);
+            // Continue anyway
+        }
+
+        try {
+            await loadChatMessages();
+        } catch (messageError) {
+            console.error("Error loading messages:", messageError);
+            // Continue anyway
+        }
+
+        // Connect to WebSocket after loading all data
+        connectWebSocket();
+
+    } catch (error) {
+        console.error('Error loading course details:', error);
+        showAlert(`Failed to load course details: ${error.message}`, 'danger');
+
+        // Check if token might be expired
+        const token = localStorage.getItem('token');
+        if (token) {
             try {
-                if (!courseId) {
-                    showAlert('Course ID is missing!', 'danger');
+                // Try to verify token validity with a simple profile check
+                const verifyResponse = await fetch(`${API_BASE_URL}/user/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!verifyResponse.ok) {
+                    console.error("Token appears to be invalid");
+                    showAlert('Your session appears to have expired. Please login again.', 'warning');
                     setTimeout(() => {
-                        window.location.href = 'enrolled-courses.html';
-                    }, 2000);
-                    return;
+                        logout();
+                    }, 3000);
                 }
+            } catch (verifyError) {
+                console.error("Error verifying token:", verifyError);
+            }
+        }
+    }
+}
 
-                const response = await fetch(`${API_BASE_URL}/courses/${courseId}`);
+// Load course members
+async function loadCourseMembers() {
+    try {
+        const token = localStorage.getItem('token');
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch course details');
-                }
+        // First try with authentication
+        let response = await fetch(`${API_BASE_URL}/courses/${courseId}/members`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
-                currentCourse = await response.json();
+        // If the above request fails, try without authentication header
+        if (!response.ok) {
+            console.log("Trying to fetch members without auth token");
+            response = await fetch(`${API_BASE_URL}/courses/${courseId}/members`);
 
-                // Update page title
-                document.getElementById('courseTitle').textContent = currentCourse.courseTitle;
-                document.title = `Chat - ${currentCourse.courseTitle}`;
-
-                // Check if user is creator
-                isCreator = currentCourse.creator && currentCourse.creator._id === currentUser._id;
-
-                // Initialize chat
-                initializeChat();
-
-                // Load course members and messages
-                await Promise.all([
-                    loadCourseMembers(),
-                    loadChatMessages()
-                ]);
-
-                // Connect to WebSocket after loading all data
-                connectWebSocket();
-
-            } catch (error) {
-                console.error('Error loading course details:', error);
-                showAlert('Failed to load course details', 'danger');
+            if (!response.ok) {
+                console.error("Members response status:", response.status);
+                const errorText = await response.text();
+                console.error("Members error response:", errorText);
+                throw new Error(`Failed to fetch course members: ${response.status}`);
             }
         }
 
-        // Load course members
-        async function loadCourseMembers() {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/courses/${courseId}/members`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+        const data = await response.json();
+
+        // Check if the response is an array
+        if (Array.isArray(data)) {
+            courseMembers = data;
+        } else if (data.members && Array.isArray(data.members)) {
+            // If the API returns { members: [...] }
+            courseMembers = data.members;
+        } else {
+            console.error("Invalid members data format:", data);
+            courseMembers = [];
+        }
+
+        console.log("Course members loaded:", courseMembers);
+
+        // Make sure courseMembers is always an array
+        if (!Array.isArray(courseMembers)) {
+            console.error("courseMembers is not an array, resetting to empty array");
+            courseMembers = [];
+        }
+
+        // Add creator to members list if not already included and creator exists
+        if (currentCourse && currentCourse.creator && currentCourse.creator._id) {
+            const creatorExists = courseMembers.some(member =>
+                member._id === currentCourse.creator._id);
+
+            if (!creatorExists) {
+                courseMembers.push({
+                    ...currentCourse.creator,
+                    role: 'instructor',
+                    online: false // Initialize as offline
                 });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch course members');
-                }
-
-                courseMembers = await response.json();
-
-                // Add creator to members list if not already included
-                const creatorExists = courseMembers.some(member =>
-                    member._id === currentCourse.creator._id);
-
-                if (!creatorExists && currentCourse.creator) {
-                    courseMembers.push({
-                        ...currentCourse.creator,
-                        role: 'instructor'
-                    });
-                }
-
-                // Update UI
-                updateMembersList();
-                updateOnlineCount();
-
-            } catch (error) {
-                console.error('Error loading course members:', error);
-                showAlert('Failed to load course members', 'danger');
             }
         }
 
-        // Load chat messages
-        async function loadChatMessages() {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/courses/${courseId}/messages`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+        // Add current user to members if not already included
+        const userExists = courseMembers.some(member => member._id === currentUser._id);
+        if (!userExists) {
+            courseMembers.push({
+                _id: currentUser._id,
+                username: currentUser.username,
+                email: currentUser.email,
+                role: (currentCourse && currentCourse.creator && currentUser._id === currentCourse.creator._id) ? 'instructor' : 'student',
+                online: true // Current user is online
+            });
+        } else {
+            // Mark current user as online
+            const currentUserIndex = courseMembers.findIndex(member => member._id === currentUser._id);
+            if (currentUserIndex !== -1) {
+                courseMembers[currentUserIndex].online = true;
+            }
+        }
+
+        // Update UI
+        updateMembersList();
+        updateOnlineCount();
+
+    } catch (error) {
+        console.error('Error loading course members:', error);
+        showAlert('Failed to load course members', 'danger');
+        // Initialize with just the current user
+        courseMembers = [{
+            _id: currentUser._id,
+            username: currentUser.username,
+            email: currentUser.email,
+            role: (currentCourse && currentCourse.creator && currentUser._id === currentCourse.creator._id) ? 'instructor' : 'student',
+            online: true
+        }];
+        updateMembersList();
+        updateOnlineCount();
+    }
+}
+
+// Load chat messages
+async function loadChatMessages() {
+    try {
+        const token = localStorage.getItem('token');
+
+        // First try with authentication
+        let response = await fetch(`${API_BASE_URL}/courses/${courseId}/messages`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        // If the above request fails, try without authentication header
+        if (!response.ok) {
+            console.log("Trying to fetch messages without auth token");
+            response = await fetch(`${API_BASE_URL}/courses/${courseId}/messages`);
+
+            if (!response.ok) {
+                console.error("Messages response status:", response.status);
+                const errorText = await response.text();
+                console.error("Messages error response:", errorText);
+                throw new Error(`Failed to fetch chat messages: ${response.status}`);
+            }
+        }
+
+        const data = await response.json();
+
+        // Check if the response is an array
+        if (Array.isArray(data)) {
+            chatMessages = data;
+        } else if (data.messages && Array.isArray(data.messages)) {
+            // If the API returns { messages: [...] }
+            chatMessages = data.messages;
+        } else {
+            console.error("Invalid messages data format:", data);
+            chatMessages = [];
+        }
+
+        console.log("Chat messages loaded:", chatMessages);
+
+        // Make sure each message has the required fields
+        chatMessages = chatMessages.filter(message => {
+            // Check if message has basic required fields
+            if (!message || !message.content) {
+                return false;
+            }
+
+            // Make sure sender is defined
+            if (!message.sender) {
+                // Try to reconstruct sender from userId if available
+                if (message.userId) {
+                    const sender = courseMembers.find(m => m._id === message.userId);
+                    if (sender) {
+                        message.sender = {
+                            _id: sender._id,
+                            username: sender.username
+                        };
+                    } else if (message.userId === currentUser._id) {
+                        message.sender = {
+                            _id: currentUser._id,
+                            username: currentUser.username
+                        };
+                    } else {
+                        message.sender = { _id: message.userId, username: "Unknown User" };
                     }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch chat messages');
-                }
-
-                chatMessages = await response.json();
-
-                // Display messages
-                displayMessages(chatMessages);
-
-            } catch (error) {
-                console.error('Error loading chat messages:', error);
-                showAlert('Failed to load chat messages', 'danger');
-            }
-        }
-
-        // Update members list in UI
-        function updateMembersList() {
-            const memberList = document.getElementById('memberList');
-            memberList.innerHTML = '';
-
-            // Sort members: creator first, then alphabetically
-            const sortedMembers = [...courseMembers].sort((a, b) => {
-                // Creator first
-                if (a._id === currentCourse.creator._id) return -1;
-                if (b._id === currentCourse.creator._id) return 1;
-
-                // Then alphabetically by username
-                return a.username.localeCompare(b.username);
-            });
-
-            sortedMembers.forEach(member => {
-                const isCreator = member._id === currentCourse.creator._id;
-                const isOnline = member.online || false; // Will be updated via WebSocket
-
-                const memberItem = document.createElement('div');
-                memberItem.className = 'member-item';
-                memberItem.dataset.id = member._id;
-
-                memberItem.innerHTML = `
-                    <div class="member-avatar">${getInitials(member.username)}</div>
-                    <div class="member-info">
-                        <div class="member-name">${member.username}</div>
-                        <div class="member-role">${isCreator ? 'Instructor' : 'Student'}</div>
-                    </div>
-                    <div class="online-indicator" style="background-color: ${isOnline ? 'var(--primary-color)' : '#ccc'}"></div>
-                `;
-
-                memberList.appendChild(memberItem);
-            });
-        }
-
-        // Update online count
-        function updateOnlineCount() {
-            const onlineMembers = courseMembers.filter(member => member.online).length;
-            document.getElementById('onlineCount').textContent = `${onlineMembers} online`;
-        }
-
-        // Display chat messages
-        function displayMessages(messages) {
-            const chatBody = document.getElementById('chatBody');
-            chatBody.innerHTML = '';
-
-            if (messages.length === 0) {
-                const welcomeMessage = document.createElement('div');
-                welcomeMessage.className = 'system-message';
-                welcomeMessage.textContent = 'Welcome to the course chat! Send a message to start the conversation.';
-                chatBody.appendChild(welcomeMessage);
-                return;
-            }
-
-            let lastDate = null;
-
-            messages.forEach((message, index) => {
-                // Check if we need to add a date divider
-                const messageDate = new Date(message.timestamp);
-
-                if (!lastDate || !isSameDay(lastDate, messageDate)) {
-                    const dateDivider = document.createElement('div');
-                    dateDivider.className = 'date-divider';
-                    dateDivider.textContent = formatFullDate(messageDate);
-                    chatBody.appendChild(dateDivider);
-
-                    lastDate = messageDate;
-                }
-
-                // Create message element
-                if (message.type === 'system') {
-                    // System message (join/leave notifications)
-                    const systemMessage = document.createElement('div');
-                    systemMessage.className = 'system-message';
-                    systemMessage.textContent = message.content;
-                    chatBody.appendChild(systemMessage);
                 } else {
-                    // Regular user message
-                    const isCurrentUser = message.sender._id === currentUser._id;
-
-                    const messageElement = document.createElement('div');
-                    messageElement.className = `chat-message ${isCurrentUser ? 'user' : 'other'}`;
-
-                    messageElement.innerHTML = `
-                        <div class="message-bubble">${message.content}</div>
-                        <div class="message-info">
-                            <span class="sender-name">${isCurrentUser ? 'You' : message.sender.username}</span>
-                            <span class="message-time">${formatDate(message.timestamp)}</span>
-                        </div>
-                    `;
-
-                    chatBody.appendChild(messageElement);
+                    message.sender = { _id: "unknown", username: "Unknown User" };
                 }
-            });
+            }
 
-            // Scroll to bottom
-            scrollToBottom();
+            // Ensure timestamp exists
+            if (!message.timestamp) {
+                message.timestamp = new Date().toISOString();
+            }
+
+            return true;
+        });
+
+        // Display messages
+        displayMessages(chatMessages);
+
+    } catch (error) {
+        console.error('Error loading chat messages:', error);
+        showAlert('Failed to load chat messages. Starting with empty chat.', 'warning');
+        chatMessages = [];
+        displayMessages([]);
+    }
+}
+
+// Update members list in UI
+function updateMembersList() {
+    const memberList = document.getElementById('memberList');
+    if (!memberList) {
+        console.error("memberList element not found");
+        return;
+    }
+
+    memberList.innerHTML = '';
+
+    // Sort members: creator first, then alphabetically
+    const sortedMembers = [...courseMembers].sort((a, b) => {
+        // Creator first
+        if (currentCourse && currentCourse.creator) {
+            if (a._id === currentCourse.creator._id) return -1;
+            if (b._id === currentCourse.creator._id) return 1;
         }
 
-        // Initialize the chat interface
-        function initializeChat() {
-            // Setup event listeners
-            document.getElementById('sendMessage').addEventListener('click', sendMessage);
-            document.getElementById('messageInput').addEventListener('keydown', function(e) {
+        // Then alphabetically by username
+        return (a.username || '').localeCompare(b.username || '');
+    });
+
+    sortedMembers.forEach(member => {
+        const isCreator = currentCourse && currentCourse.creator && member._id === currentCourse.creator._id;
+        const isOnline = member.online || false;
+
+        const memberItem = document.createElement('div');
+        memberItem.className = 'member-item';
+        memberItem.dataset.id = member._id;
+
+        memberItem.innerHTML = `
+            <div class="member-avatar">${getInitials(member.username)}</div>
+            <div class="member-info">
+                <div class="member-name">${member.username || 'Unknown'}</div>
+                <div class="member-role">${isCreator ? 'Instructor' : 'Student'}</div>
+            </div>
+            <div class="online-indicator" style="background-color: ${isOnline ? 'var(--primary-color)' : '#ccc'}"></div>
+        `;
+
+        memberList.appendChild(memberItem);
+    });
+}
+
+// Update online count
+function updateOnlineCount() {
+    const onlineCountEl = document.getElementById('onlineCount');
+    if (!onlineCountEl) {
+        console.error("onlineCount element not found");
+        return;
+    }
+
+    const onlineMembers = courseMembers.filter(member => member.online).length;
+    onlineCountEl.textContent = `${onlineMembers} online`;
+}
+
+// Display chat messages
+function displayMessages(messages) {
+    const chatBody = document.getElementById('chatBody');
+    if (!chatBody) {
+        console.error("chatBody element not found");
+        return;
+    }
+
+    chatBody.innerHTML = '';
+
+    if (messages.length === 0) {
+        const welcomeMessage = document.createElement('div');
+        welcomeMessage.className = 'system-message';
+        welcomeMessage.textContent = 'Welcome to the course chat! Send a message to start the conversation.';
+        chatBody.appendChild(welcomeMessage);
+        return;
+    }
+
+    let lastDate = null;
+
+    messages.forEach((message, index) => {
+        // Check if we need to add a date divider
+        const messageDate = new Date(message.timestamp);
+
+        if (!lastDate || !isSameDay(lastDate, messageDate)) {
+            const dateDivider = document.createElement('div');
+            dateDivider.className = 'date-divider';
+            dateDivider.textContent = formatFullDate(messageDate);
+            chatBody.appendChild(dateDivider);
+
+            lastDate = messageDate;
+        }
+
+        // Create message element
+        if (message.type === 'system') {
+            // System message (join/leave notifications)
+            const systemMessage = document.createElement('div');
+            systemMessage.className = 'system-message';
+            systemMessage.textContent = message.content;
+            chatBody.appendChild(systemMessage);
+        } else {
+            // Regular user message
+            const isCurrentUser = message.sender && message.sender._id === currentUser._id;
+
+            const messageElement = document.createElement('div');
+            messageElement.className = `chat-message ${isCurrentUser ? 'user' : 'other'}`;
+
+            const senderName = message.sender ? (isCurrentUser ? 'You' : message.sender.username) : 'Unknown';
+
+            messageElement.innerHTML = `
+                <div class="message-bubble">${message.content}</div>
+                <div class="message-info">
+                    <span class="sender-name">${senderName}</span>
+                    <span class="message-time">${formatDate(message.timestamp)}</span>
+                </div>
+            `;
+
+            chatBody.appendChild(messageElement);
+        }
+    });
+
+    // Scroll to bottom
+    scrollToBottom();
+}
+
+// Initialize the chat interface
+function initializeChat() {
+    try {
+        // Safely add event listeners by checking for element existence
+        const sendMessageBtn = document.getElementById('sendMessage');
+        const messageInput = document.getElementById('messageInput');
+        const userProfile = document.getElementById('userProfile');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const showMembersBtn = document.getElementById('showMembers');
+        const closeMembersBtn = document.getElementById('closeMembers');
+        const membersPanel = document.getElementById('membersPanel');
+        const overlay = document.getElementById('overlay');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Setup send message functionality
+        if (sendMessageBtn) {
+            sendMessageBtn.addEventListener('click', sendMessage);
+        } else {
+            console.warn("sendMessage button not found");
+        }
+
+        if (messageInput) {
+            messageInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
                 }
             });
 
-            // Setup profile dropdown
-            document.getElementById('userProfile').addEventListener('click', function() {
-                document.getElementById('profileDropdown').classList.toggle('active');
-            });
-
-            // Close profile dropdown when clicking elsewhere
-            document.addEventListener('click', function(e) {
-                const profileDropdown = document.getElementById('profileDropdown');
-                const userProfile = document.getElementById('userProfile');
-
-                if (!userProfile.contains(e.target) && profileDropdown.classList.contains('active')) {
-                    profileDropdown.classList.remove('active');
-                }
-            });
-
-            // Setup members panel
-            document.getElementById('showMembers').addEventListener('click', function() {
-                document.getElementById('membersPanel').classList.add('active');
-                document.getElementById('overlay').classList.add('active');
-            });
-
-            document.getElementById('closeMembers').addEventListener('click', function() {
-                document.getElementById('membersPanel').classList.remove('active');
-                document.getElementById('overlay').classList.remove('active');
-            });
-
-            document.getElementById('overlay').addEventListener('click', function() {
-                document.getElementById('membersPanel').classList.remove('active');
-                document.getElementById('overlay').classList.remove('active');
-            });
-
             // Auto-resize textarea
-            const textarea = document.getElementById('messageInput');
-            textarea.addEventListener('input', function() {
+            messageInput.addEventListener('input', function() {
                 this.style.height = 'auto';
                 const newHeight = Math.min(this.scrollHeight, 100);
                 this.style.height = newHeight + 'px';
             });
+        } else {
+            console.warn("messageInput element not found");
         }
 
-        // Connect to WebSocket
-        function connectWebSocket() {
-            // Close existing connection if any
-            if (socket) {
+        // Setup profile dropdown
+        if (userProfile && profileDropdown) {
+            userProfile.addEventListener('click', function() {
+                profileDropdown.classList.toggle('active');
+            });
+
+            // Close profile dropdown when clicking elsewhere
+            document.addEventListener('click', function(e) {
+                if (!userProfile.contains(e.target) && profileDropdown.classList.contains('active')) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+        } else {
+            console.warn("Profile elements not found");
+        }
+
+        // Setup members panel
+        if (showMembersBtn && membersPanel && overlay) {
+            showMembersBtn.addEventListener('click', function() {
+                membersPanel.classList.add('active');
+                overlay.classList.add('active');
+            });
+        } else {
+            console.warn("Show members elements not found");
+        }
+
+        if (closeMembersBtn && membersPanel && overlay) {
+            closeMembersBtn.addEventListener('click', function() {
+                membersPanel.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        } else {
+            console.warn("Close members elements not found");
+        }
+
+        if (overlay && membersPanel) {
+            overlay.addEventListener('click', function() {
+                membersPanel.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        } else {
+            console.warn("Overlay element not found");
+        }
+
+        // Setup logout button
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', logout);
+        } else {
+            console.warn("Logout button not found");
+        }
+
+        console.log("Chat interface initialized successfully");
+    } catch (error) {
+        console.error("Error initializing chat interface:", error);
+        showAlert('Error initializing chat interface. Some features may not work properly.', 'warning');
+    }
+}
+
+// Connect to WebSocket
+function connectWebSocket() {
+    // Close existing connection if any
+    if (socket) {
+        socket.close();
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token || !courseId) {
+        console.error("Missing token or courseId for WebSocket connection");
+        return;
+    }
+
+    // Try different WebSocket URL formats
+    // Option 1: Direct WebSocket URL with domain
+    let wsUrl = `wss://intigrated-project-4.onrender.com/ws/chat/${courseId}?token=${token}`;
+
+    console.log("Attempting to connect to WebSocket:", wsUrl);
+
+    try {
+        socket = new WebSocket(wsUrl);
+
+        // Set a connection timeout
+        const connectionTimeout = setTimeout(() => {
+            if (socket.readyState !== WebSocket.OPEN) {
+                console.log("WebSocket connection timeout, trying alternative connection");
                 socket.close();
+                tryAlternativeConnection();
             }
+        }, 5000);
 
-            const token = localStorage.getItem('token');
-            if (!token || !courseId) return;
+        socket.onopen = function() {
+            console.log('WebSocket connection established successfully');
+            clearTimeout(connectionTimeout);
+            reconnectAttempts = 0;
 
-            // Create WebSocket connection
-            // Note: Using wss:// for secure connections in production
-            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${wsProtocol}//${API_BASE_URL.replace('https://', '').replace('http://', '')}/ws/chat/${courseId}?token=${token}`;
-
-            socket = new WebSocket(wsUrl);
-
-            socket.onopen = function() {
-                console.log('WebSocket connection established');
-                // Send a presence message to notify other users
-                const presenceMsg = {
-                    type: 'presence',
-                    action: 'join',
-                    courseId: courseId,
-                    userId: currentUser._id
-                };
-                socket.send(JSON.stringify(presenceMsg));
+            // Send a presence message to notify other users
+            const presenceMsg = {
+                type: 'presence',
+                action: 'join',
+                courseId: courseId,
+                userId: currentUser._id
             };
 
-            socket.onmessage = function(event) {
+            try {
+                socket.send(JSON.stringify(presenceMsg));
+                console.log("Presence message sent:", presenceMsg);
+            } catch (sendError) {
+                console.error("Error sending presence message:", sendError);
+            }
+
+            // Mark self as online locally
+            markUserOnline(currentUser._id, true);
+
+            // Show success alert
+            showAlert('Connected to chat server', 'success');
+        };
+
+        socket.onmessage = function(event) {
+            console.log("WebSocket message received:", event.data);
+            try {
+                const message = JSON.parse(event.data);
+
+                // Handle different message types
+                switch (message.type) {
+                    case 'chat':
+                        handleChatMessage(message);
+                        break;
+                    case 'presence':
+                        handlePresenceUpdate(message);
+                        break;
+                    case 'system':
+                        handleSystemMessage(message);
+                        break;
+                    case 'pong':
+                        console.log("Received pong from server");
+                        break;
+                    default:
+                        console.log("Unknown message type:", message.type);
+                }
+            } catch (error) {
+                console.error("Error processing WebSocket message:", error);
+            }
+        };
+
+        socket.onclose = function(event) {
+            console.log('WebSocket connection closed', event);
+            clearTimeout(connectionTimeout);
+
+            // Mark all users as offline except current user
+            courseMembers.forEach(member => {
+                if (member._id !== currentUser._id) {
+                    member.online = false;
+                }
+            });
+            updateMembersList();
+            updateOnlineCount();
+
+            // Try to reconnect with exponential backoff
+            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+                reconnectAttempts++;
+                console.log(`Attempting to reconnect in ${delay/1000} seconds...`);
+                setTimeout(connectWebSocket, delay);
+            } else {
+                showAlert('Connection to chat server lost. Please refresh the page.', 'danger');
+            }
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket error:', error);
+            // Only show alert if we haven't reached max attempts
+            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                showAlert('Connection error. Trying to reconnect...', 'warning');
+            }
+        };
+    } catch (error) {
+        console.error("Failed to create WebSocket connection:", error);
+        showAlert('Failed to connect to chat server. Will try again...', 'danger');
+
+        // Try alternative connection after a short delay
+        setTimeout(tryAlternativeConnection, 2000);
+    }
+}
+
+// Try alternative WebSocket connection methods
+function tryAlternativeConnection() {
+    const token = localStorage.getItem('token');
+    if (!token || !courseId) return;
+
+    // Option 2: Try a relative path WebSocket URL
+    const wsUrl = `wss://intigrated-project-4.onrender.com/ws?courseId=${courseId}&token=${token}`;
+
+    console.log("Trying alternative WebSocket connection:", wsUrl);
+
+    try {
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = function() {
+            console.log('Alternative WebSocket connection established');
+            reconnectAttempts = 0;
+
+            // Send a presence message with different format
+            const presenceMsg = {
+                type: 'presence',
+                action: 'join',
+                courseId: courseId,
+                userId: currentUser._id,
+                username: currentUser.username
+            };
+
+            socket.send(JSON.stringify(presenceMsg));
+
+            // Mark self as online locally
+            markUserOnline(currentUser._id, true);
+
+            // Show success alert
+            showAlert('Connected to chat server', 'success');
+        };
+
+        // Set up the same event handlers as in connectWebSocket
+        socket.onmessage = function(event) {
+            console.log("WebSocket message received (alt):", event.data);
+            try {
                 const message = JSON.parse(event.data);
 
                 // Handle different message types
@@ -1048,160 +1448,329 @@
                         handleSystemMessage(message);
                         break;
                 }
-            };
+            } catch (error) {
+                console.error("Error processing WebSocket message:", error);
+            }
+        };
 
-            socket.onclose = function() {
-                console.log('WebSocket connection closed');
-                // Try to reconnect after a delay
-                setTimeout(connectWebSocket, 3000);
-            };
+        socket.onclose = function(event) {
+            console.log('Alternative WebSocket connection closed', event);
 
-            socket.onerror = function(error) {
-                console.error('WebSocket error:', error);
-            };
-
-            // Setup window beforeunload to notify when user leaves
-            window.addEventListener('beforeunload', function() {
-                if (socket && socket.readyState === WebSocket.OPEN) {
-                    const presenceMsg = {
-                        type: 'presence',
-                        action: 'leave',
-                        courseId: courseId,
-                        userId: currentUser._id
-                    };
-                    socket.send(JSON.stringify(presenceMsg));
+            // Mark all users as offline except current user
+            courseMembers.forEach(member => {
+                if (member._id !== currentUser._id) {
+                    member.online = false;
                 }
             });
-        }
-
-        // Handle incoming chat message
-        function handleChatMessage(message) {
-            chatMessages.push(message);
-            appendMessage(message);
-            scrollToBottom();
-        }
-
-        // Handle presence updates (user join/leave)
-        function handlePresenceUpdate(message) {
-            // Update member online status
-            const memberId = message.userId;
-            const isOnline = message.action === 'join';
-
-            // Update in courseMembers array
-            const memberIndex = courseMembers.findIndex(m => m._id === memberId);
-            if (memberIndex >= 0) {
-                courseMembers[memberIndex].online = isOnline;
-            }
-
-            // Update UI
-            const memberElement = document.querySelector(`.member-item[data-id="${memberId}"] .online-indicator`);
-            if (memberElement) {
-                memberElement.style.backgroundColor = isOnline ? 'var(--primary-color)' : '#ccc';
-            }
-
+            updateMembersList();
             updateOnlineCount();
-        }
 
-        // Handle system messages
-        function handleSystemMessage(message) {
-            chatMessages.push(message);
+            // Try to reconnect with exponential backoff
+            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+                reconnectAttempts++;
+                console.log(`Attempting to reconnect in ${delay/1000} seconds...`);
+                setTimeout(connectWebSocket, delay);
+            } else {
+                showAlert('Connection to chat server lost. Please refresh the page.', 'danger');
+            }
+        };
 
-            const chatBody = document.getElementById('chatBody');
-            const systemMessage = document.createElement('div');
-            systemMessage.className = 'system-message';
-            systemMessage.textContent = message.content;
-            chatBody.appendChild(systemMessage);
+        socket.onerror = function(error) {
+            console.error('Alternative WebSocket error:', error);
 
-            scrollToBottom();
-        }
+            // If alternative also fails, try fallback to polling
+            setupPollingFallback();
+        };
+    } catch (error) {
+        console.error("Failed to create alternative WebSocket connection:", error);
+        setupPollingFallback();
+    }
+}
 
-        // Append a new message to the chat
-        function appendMessage(message) {
-            const chatBody = document.getElementById('chatBody');
-            const messages = chatBody.querySelectorAll('.chat-message, .system-message, .date-divider');
+// Fallback to polling if WebSocket fails completely
+function setupPollingFallback() {
+    console.log("Setting up polling fallback");
+    showAlert('Using fallback chat mode', 'info');
 
-            // Check if we need to add a date divider
-            const messageDate = new Date(message.timestamp);
-            let needsDateDivider = true;
+    // Mark current user as online locally
+    markUserOnline(currentUser._id, true);
 
-            if (messages.length > 0) {
-                // Get the last date divider
-                const dateDividers = chatBody.querySelectorAll('.date-divider');
-                if (dateDividers.length > 0) {
-                    const lastDivider = dateDividers[dateDividers.length - 1];
-                    const dividerDate = new Date(lastDivider.textContent);
-                    if (isSameDay(dividerDate, messageDate)) {
-                        needsDateDivider = false;
+    // Setup polling interval to fetch new messages
+    let lastMessageTime = chatMessages.length > 0
+        ? new Date(chatMessages[chatMessages.length - 1].timestamp).getTime()
+        : 0;
+
+    // Poll for new messages every 3 seconds
+    const pollInterval = setInterval(async () => {
+        try {
+            const token = localStorage.getItem('token');
+
+            // Fetch new messages since last poll
+            const response = await fetch(
+                `${API_BASE_URL}/courses/${courseId}/messages?since=${lastMessageTime}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
                     }
                 }
-            }
+            );
 
-            if (needsDateDivider) {
-                const dateDivider = document.createElement('div');
-                dateDivider.className = 'date-divider';
-                dateDivider.textContent = formatFullDate(messageDate);
-                chatBody.appendChild(dateDivider);
-            }
+            if (response.ok) {
+                const newMessages = await response.json();
 
-            // Create message element
-            const isCurrentUser = message.sender._id === currentUser._id;
+                if (Array.isArray(newMessages) && newMessages.length > 0) {
+                    console.log("Polling: received new messages:", newMessages);
 
-            const messageElement = document.createElement('div');
-            messageElement.className = `chat-message ${isCurrentUser ? 'user' : 'other'}`;
+                    // Update last message time
+                    const latestMsg = newMessages[newMessages.length - 1];
+                    if (latestMsg && latestMsg.timestamp) {
+                        lastMessageTime = new Date(latestMsg.timestamp).getTime();
+                    }
 
-            messageElement.innerHTML = `
-                <div class="message-bubble">${message.content}</div>
-                <div class="message-info">
-                    <span class="sender-name">${isCurrentUser ? 'You' : message.sender.username}</span>
-                    <span class="message-time">${formatDate(message.timestamp)}</span>
-                </div>
-            `;
+                    // Process each new message
+                    newMessages.forEach(message => {
+                        // Only add if not from current user (since we already show those immediately)
+                        if (!message.sender || message.sender._id !== currentUser._id) {
+                            chatMessages.push(message);
+                            appendMessage(message);
+                        }
+                    });
 
-            chatBody.appendChild(messageElement);
-        }
-
-        // Send a new message
-        function sendMessage() {
-            const messageInput = document.getElementById('messageInput');
-            const content = messageInput.value.trim();
-
-            if (!content || !socket || socket.readyState !== WebSocket.OPEN) return;
-
-            const message = {
-                type: 'chat',
-                courseId: courseId,
-                content: content,
-                timestamp: new Date().toISOString(),
-                sender: {
-                    _id: currentUser._id,
-                    username: currentUser.username
+                    scrollToBottom();
                 }
+            }
+        } catch (error) {
+            console.error("Error polling for messages:", error);
+        }
+    }, 3000);
+
+    // Store interval ID so we can clear it if WebSocket connects
+    window.pollFallbackInterval = pollInterval;
+}
+
+// Setup window beforeunload to notify when user leaves
+window.addEventListener('beforeunload', function() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        const presenceMsg = {
+            type: 'presence',
+            action: 'leave',
+            courseId: courseId,
+            userId: currentUser._id
+        };
+        socket.send(JSON.stringify(presenceMsg));
+    }
+});
+// Mark user as online or offline
+function markUserOnline(userId, isOnline) {
+    // Update in courseMembers array
+    const memberIndex = courseMembers.findIndex(m => m._id === userId);
+    if (memberIndex >= 0) {
+        courseMembers[memberIndex].online = isOnline;
+    }
+
+    // Update UI
+    const memberElement = document.querySelector(`.member-item[data-id="${userId}"] .online-indicator`);
+    if (memberElement) {
+        memberElement.style.backgroundColor = isOnline ? 'var(--primary-color)' : '#ccc';
+    }
+
+    updateOnlineCount();
+}
+
+// Handle incoming chat message
+function handleChatMessage(message) {
+    // Ensure the message has all required fields
+    if (!message.content || !message.timestamp) {
+        console.error("Invalid message format:", message);
+        return;
+    }
+
+    // If sender is missing, try to reconstruct from available data
+    if (!message.sender) {
+        console.warn("Message missing sender info, attempting to reconstruct");
+
+        // Try to find the sender in the members list
+        const sender = courseMembers.find(m => m._id === message.userId);
+        if (sender) {
+            message.sender = {
+                _id: sender._id,
+                username: sender.username
             };
-
-            // Send message through WebSocket
-            socket.send(JSON.stringify(message));
-
-            // Clear input
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-
-            // No need to append message here, it will come back through the WebSocket
+        } else if (message.userId === currentUser._id) {
+            message.sender = {
+                _id: currentUser._id,
+                username: currentUser.username
+            };
         }
+    }
 
-        // Scroll to bottom of chat
-        function scrollToBottom() {
-            const chatBody = document.getElementById('chatBody');
-            chatBody.scrollTop = chatBody.scrollHeight;
+    chatMessages.push(message);
+    appendMessage(message);
+    scrollToBottom();
+}
+
+// Handle presence updates (user join/leave)
+function handlePresenceUpdate(message) {
+    // Update member online status
+    const memberId = message.userId;
+    const isOnline = message.action === 'join';
+
+    console.log(`User ${memberId} is now ${isOnline ? 'online' : 'offline'}`);
+    markUserOnline(memberId, isOnline);
+}
+
+// Handle system messages
+function handleSystemMessage(message) {
+    chatMessages.push(message);
+
+    const chatBody = document.getElementById('chatBody');
+    const systemMessage = document.createElement('div');
+    systemMessage.className = 'system-message';
+    systemMessage.textContent = message.content;
+    chatBody.appendChild(systemMessage);
+
+    scrollToBottom();
+}
+
+// Append a new message to the chat
+function appendMessage(message) {
+    const chatBody = document.getElementById('chatBody');
+    const messages = chatBody.querySelectorAll('.chat-message, .system-message, .date-divider');
+
+    // Check if we need to add a date divider
+    const messageDate = new Date(message.timestamp);
+    let needsDateDivider = true;
+
+    if (messages.length > 0) {
+        // Get the last date divider
+        const dateDividers = chatBody.querySelectorAll('.date-divider');
+        if (dateDividers.length > 0) {
+            const lastDivider = dateDividers[dateDividers.length - 1];
+            const dividerDate = new Date(lastDivider.textContent);
+            if (isSameDay(dividerDate, messageDate)) {
+                needsDateDivider = false;
+            }
         }
+    }
 
-        // Logout function
-        function logout() {
-            localStorage.removeItem('token');
-            window.location.href = 'second.html';
+    if (needsDateDivider) {
+        const dateDivider = document.createElement('div');
+        dateDivider.className = 'date-divider';
+        dateDivider.textContent = formatFullDate(messageDate);
+        chatBody.appendChild(dateDivider);
+    }
+
+    // Create message element
+    if (message.type === 'system') {
+        const systemMessage = document.createElement('div');
+        systemMessage.className = 'system-message';
+        systemMessage.textContent = message.content;
+        chatBody.appendChild(systemMessage);
+    } else {
+        // Regular user message
+        const isCurrentUser = message.sender && message.sender._id === currentUser._id;
+
+        const messageElement = document.createElement('div');
+        messageElement.className = `chat-message ${isCurrentUser ? 'user' : 'other'}`;
+
+        const senderName = message.sender ? (isCurrentUser ? 'You' : message.sender.username) : 'Unknown';
+
+        messageElement.innerHTML = `
+            <div class="message-bubble">${message.content}</div>
+            <div class="message-info">
+                <span class="sender-name">${senderName}</span>
+                <span class="message-time">${formatDate(message.timestamp)}</span>
+            </div>
+        `;
+
+        chatBody.appendChild(messageElement);
+    }
+}
+
+// Send a new message
+function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const content = messageInput.value.trim();
+
+    if (!content) return;
+
+    // Check WebSocket connection
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        showAlert('Connection to chat server lost. Reconnecting...', 'warning');
+        connectWebSocket();
+        return;
+    }
+
+    const message = {
+        type: 'chat',
+        courseId: courseId,
+        content: content,
+        timestamp: new Date().toISOString(),
+        sender: {
+            _id: currentUser._id,
+            username: currentUser.username
         }
+    };
 
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', loadUserProfile);
+    console.log("Sending message:", message);
+
+    try {
+        // Send message through WebSocket
+        socket.send(JSON.stringify(message));
+
+        // Clear input
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+
+        // Since WebSocket might be slow, we can also manually add the message locally
+        // This gives immediate feedback to the user
+        chatMessages.push(message);
+        appendMessage(message);
+        scrollToBottom();
+    } catch (error) {
+        console.error("Error sending message:", error);
+        showAlert('Failed to send message. Please try again.', 'danger');
+    }
+}
+
+// Scroll to bottom of chat
+function scrollToBottom() {
+    const chatBody = document.getElementById('chatBody');
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+// Logout function
+function logout() {
+    // Send leave message if connected
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        const presenceMsg = {
+            type: 'presence',
+            action: 'leave',
+            courseId: courseId,
+            userId: currentUser._id
+        };
+        socket.send(JSON.stringify(presenceMsg));
+    }
+
+    localStorage.removeItem('token');
+    window.location.href = 'second.html';
+}
+
+// Ping function to keep WebSocket connection alive
+function pingServer() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: 'ping' }));
+    }
+}
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    loadUserProfile();
+
+    // Setup ping interval to keep connection alive
+    setInterval(pingServer, 30000); // Ping every 30 seconds
+});
     </script>
 </body>
 </html>
