@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const http = require("http"); // Added missing HTTP module import
+const http = require("http");
+const WebSocket = require('ws');
 
 const app = express();
 app.use(cors());
@@ -13,9 +14,8 @@ app.use(express.json());
 const router = express.Router();
 app.use(router);
 
-//chat function(ws)
-const WebSocket = require('ws');
-const server = http.createServer(app); // Your Express app
+// Create HTTP server
+const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 // JWT Secret - should be in environment variables in production
@@ -23,6 +23,7 @@ const JWT_SECRET = "secret_key";
 
 // Store active connections
 const activeConnections = new Map();
+
 // Connect to MongoDB
 mongoose.connect("mongodb+srv://ananabababa05:krish@cluster0.gmel6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
   useNewUrlParser: true,
@@ -60,7 +61,7 @@ const Message = mongoose.model('Message', messageSchema);
 // User Schema
 const UserSchema = new mongoose.Schema({
   username: String,
-  email: { type: String, unique: true, required: true },  // Email must be unique and required
+  email: { type: String, unique: true, required: true },
   password: String,
 });
 
@@ -151,18 +152,23 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  // Check if user exists
-  const user = await User.findOne({ email });
-  if (!user) return res.status(400).json({ message: "User not found" });
+  try {
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "User not found" });
 
-  // Compare passwords
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-  // Generate token
-  const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1d" });
+    // Generate token
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1d" });
 
-  res.json({ message: "Login successful", token });
+    res.json({ message: "Login successful", token });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 });
 
 // Get User Profile
@@ -220,6 +226,7 @@ app.get("/courses/my-courses", verifyToken, async (req, res) => {
     const courses = await Course.find({ creator: req.user.userId });
     res.json(courses);
   } catch (error) {
+    console.error("Error fetching my courses:", error);
     res.status(500).json({ message: "Failed to fetch your courses", error: error.message });
   }
 });
@@ -319,7 +326,6 @@ app.get("/courses/:id/enrollment-count", async (req, res) => {
     res.status(500).json({ message: "Failed to get enrollment count", error: error.message });
   }
 });
-//Changing chat position
 
 // WebSocket connection handler
 wss.on('connection', function connection(ws, req) {
