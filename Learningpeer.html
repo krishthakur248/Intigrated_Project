@@ -118,7 +118,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             color: black;
         }
-        
+
         .category-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0,0,0,0.1);
@@ -147,7 +147,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             transition: transform 0.3s ease;
         }
-        
+
         .category-card:hover .category-image {
             transform: scale(1.05);
         }
@@ -228,7 +228,7 @@
             margin-bottom: 20px;
             position: relative;
         }
-        
+
         .footer-section h4:after {
             content: '';
             position: absolute;
@@ -261,7 +261,7 @@
             color: #159952;
             transform: translateX(3px);
         }
-        
+
         .footer-bottom {
             text-align: center;
             padding: 20px 0;
@@ -269,13 +269,13 @@
             color: #6b7280;
             font-size: 0.9rem;
         }
-        
+
         .social-icons {
             display: flex;
             gap: 12px;
             margin-top: 16px;
         }
-        
+
         .social-icon {
             width: 36px;
             height: 36px;
@@ -286,7 +286,7 @@
             justify-content: center;
             transition: background-color 0.3s ease;
         }
-        
+
         .social-icon:hover {
             background-color: #e5e7eb;
         }
@@ -339,11 +339,11 @@
         .nav-link:hover {
             color: #159952;
         }
-        
+
         .nav-link.active {
             color: #159952;
         }
-        
+
         .nav-link.active::after {
             content: '';
             position: absolute;
@@ -363,7 +363,7 @@
             fill: currentColor;
             transition: transform 0.2s ease;
         }
-        
+
         .nav-link:hover .nav-icon {
             transform: translateY(-2px);
         }
@@ -436,7 +436,7 @@
             .professor-info span {
                 font-size: 1.25rem;
             }
-            
+
             .footer-content {
                 grid-template-columns: repeat(4, 1fr);
             }
@@ -513,7 +513,7 @@
             <a href="view-courses.html">
             <div class="category-card engineering">
                 <h3>Engineering </h3>
-                
+
                 <p>Connect with other Engineerers...</p> <br>
                 <div class="bold">
                 <p style="font-weight: bold;">The Builders!</p>
@@ -523,18 +523,18 @@
             </a>
             <a href="view-courses.html">
             <div class="category-card medical" style="color: #212529;">
-                
-                
+
+
                 <h3>Medical Field</h3>
                 <p>Connect with Other Medical Students...</p> <br>
                 <div class="bold">
                 <p style="font-weight: bold;">Future doctors!</p>
                 </div>
-                
+
                 <img src="Medical.jpg" alt="Medical" class="category-image">
             </div>
             </a>
-        
+
             <a href="view-courses.html">
             <div class="category-card commerce">
                 <h3>Commerce </h3>
@@ -544,13 +544,13 @@
                 </div>
                 <img src="com.jpg" alt="Commerce" class="category-image">
             </div>
-            </a>  
+            </a>
             <a href="view-courses.html">
             <div class="category-card arts">
                 <h3>Arts Field</h3>
                 <p>Connect with designers</p> <br>
                 <div class="bold">
-                <p style="font-weight: bold;">The Artist!</p> 
+                <p style="font-weight: bold;">The Artist!</p>
                 </div>
                 <img src="art.png" alt="Arts" class="category-image">
             </div>
@@ -613,7 +613,7 @@
         <br>
         <p>------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</p>
     </div>
-    
+
 
 
     <!-- Footer - IMPROVED -->
@@ -627,9 +627,9 @@
                     <li><a href="#">Mission & Vision</a></li>
                     <li><a href="#">How It Works</a></li>
                     <li><a href="#">Career Opportunities</a></li>
-                </ul> 
+                </ul>
             </div>
-            
+
             <div class="footer-section">
                 <h4>Resources</h4>
                 <ul class="footer-links">
@@ -639,7 +639,7 @@
                     <li><a href="willbeupdated.html">Success Stories</a></li>
                 </ul>
             </div>
-            
+
             <div class="footer-section">
                 <h4>Connect With Us</h4>
                 <ul class="footer-links">
@@ -670,7 +670,7 @@
                     </a>
                 </div>
             </div>
-            
+
             <div class="footer-section">
                 <h4>Legal</h4>
                 <ul class="footer-links">
@@ -681,7 +681,7 @@
                 </ul>
             </div>
         </div>
-        
+
         <div class="footer-bottom">
             <p>&copy; 2025 SkillXchange. All rights reserved.</p>
         </div>
@@ -723,7 +723,7 @@
                     <span>Ingroup</span>
                 </a>
             </li>
-            
+
             <li class="nav-item">
                 <a href="#" class="nav-link">
                     <div class="menu-icon"></div>
@@ -741,32 +741,19 @@
                 card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
                 card.style.boxShadow = '0 8px 15px rgba(0,0,0,0.1)';
             });
-            
+
             card.addEventListener('mouseout', () => {
                 card.style.transform = 'translateY(0)';
                 card.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
             });
         });
-
-        // Search input focus effects
-        const searchInput = document.querySelector('.search-input');
-        searchInput.addEventListener('focus', () => {
-            searchInput.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.5)';
-        });
-
-        searchInput.addEventListener('blur', () => {
-            searchInput.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-        });
-        
-        // Active nav link
-        // Card hover effects
 document.querySelectorAll('.category-card').forEach(card => {
     card.addEventListener('mouseover', () => {
         card.style.transform = 'translateY(-4px)';
         card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
         card.style.boxShadow = '0 8px 15px rgba(0,0,0,0.1)';
     });
-        
+
     card.addEventListener('mouseout', () => {
         card.style.transform = 'translateY(0)';
         card.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
@@ -782,7 +769,7 @@ searchInput.addEventListener('focus', () => {
 searchInput.addEventListener('blur', () => {
     searchInput.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
 });
-        
+
 // Active nav link
 const navLinks = document.querySelectorAll('.nav-link');
 
@@ -792,7 +779,7 @@ navLinks.forEach(link => {
         navLinks.forEach(item => {
             item.classList.remove('active');
         });
-        
+
         // Add active class to clicked link
         link.classList.add('active');
     });
@@ -806,6 +793,6 @@ navLinks.forEach(link => {
         link.classList.add('active');
     }
 });
-
+</script>
 </body>
 </html>

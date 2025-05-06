@@ -298,13 +298,22 @@
 
         /* Bottom Navigation - IMPROVED */
         .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .bottom-nav {
             background-color: white;
             padding: 15px 0;
             box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
             position: fixed;
             bottom: 0;
             width: 100%;
-            max-width: 1200px;
+            /* max-width: 1200px; */
             border-radius: 16px 16px 0 0;
             z-index: 100;
         }
@@ -362,6 +371,10 @@
             margin-bottom: 6px;
             fill: currentColor;
             transition: transform 0.2s ease;
+        }
+
+        .nav-link:hover .nav-icon {
+            transform: translateY(-2px);
         }
 
         .nav-link:hover .nav-icon {
@@ -704,7 +717,7 @@
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 3h-4.18C14.25 1.28 12.77 0 11 0S7.75 1.28 7.18 3H3C1.9 3 1 3.9 1 5v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 0c.83 0 1.5.67 1.5 1.5S11.83 6 11 6s-1.5-.67-1.5-1.5S10.17 3 11 3zm2 14H6v-2h7v2zm3-4H6v-2h10v2zm0-4H6V7h10v2z"/>
                     </svg>
-                    <span>For Credit</span>
+                    <span>Teaching Peer</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -712,7 +725,7 @@
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
                     </svg>
-                    <span>Peer<br> To Peer</span>
+                    <span>Learning Peer</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -763,16 +776,6 @@ document.querySelectorAll('.category-card').forEach(card => {
     });
 });
 
-// Search input focus effects
-const searchInput = document.querySelector('.search-input');
-searchInput.addEventListener('focus', () => {
-    searchInput.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.5)';
-});
-
-searchInput.addEventListener('blur', () => {
-    searchInput.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-});
-
 // Active nav link
 const navLinks = document.querySelectorAll('.nav-link');
 
@@ -788,14 +791,6 @@ navLinks.forEach(link => {
     });
 });
 
-// Set initial active state based on current page
-const currentPath = window.location.pathname;
-navLinks.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href === currentPath || (href === '#' && currentPath === '/' || currentPath === '/index.html')) {
-        link.classList.add('active');
-    }
-});
 </script>
 </body>
 </html>
