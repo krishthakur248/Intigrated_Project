@@ -101,15 +101,15 @@
         .btn:hover {
             background-color: var(--secondary-color);
         }
-        
+
         .btn-secondary {
             background-color: #3498db;
         }
-        
+
         .btn-secondary:hover {
             background-color: #2980b9;
         }
-        
+
         .enrollment-status {
             text-align: center;
             color: var(--primary-color);
@@ -133,24 +133,24 @@
             color: var(--text-light);
             padding: 20px;
         }
-        
+
         .enrollments-section {
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #ddd;
         }
-        
+
         .enrollments-section h2 {
             color: var(--primary-color);
             margin-bottom: 15px;
         }
-        
+
         .enrollment-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 15px;
         }
-        
+
         .enrollment-item {
             background-color: var(--background-light);
             border-radius: 8px;
@@ -199,11 +199,11 @@
         .nav-link:hover {
             color: #159952;
         }
-        
+
         .nav-link.active {
             color: #159952;
         }
-        
+
         .nav-link.active::after {
             content: '';
             position: absolute;
@@ -223,7 +223,7 @@
             fill: currentColor;
             transition: transform 0.2s ease;
         }
-        
+
         .nav-link:hover .nav-icon {
             transform: translateY(-2px);
         }
@@ -296,7 +296,7 @@
             .professor-info span {
                 font-size: 1.25rem;
             }
-            
+
             .footer-content {
                 grid-template-columns: repeat(4, 1fr);
             }
@@ -386,7 +386,7 @@
             align-items: center;
             padding: 10px 20px;
             background-color: white;
-            position: sticky; 
+            position: sticky;
             top: 0;
             z-index: 200;
         }
@@ -413,7 +413,7 @@
     </div>
     <div class="container">
         <h1>Available Courses</h1>
-        
+
         <div class="filter-section">
             <select id="category-filter">
                 <option value="">All Categories</option>
@@ -431,7 +431,7 @@
         </div>
 
         <div id="courses-grid" class="course-grid"></div>
-        
+
         <div class="enrollments-section">
             <h2>Your Enrollments</h2>
             <div id="enrollments-list" class="enrollment-list"></div>
@@ -477,7 +477,7 @@
                     <span>Ingroup</span>
                 </a>
             </li>
-            
+
             <li class="nav-item">
                 <a href="./Coomingsoon.html" class="nav-link">
                     <div class="menu-icon"></div>
@@ -492,7 +492,7 @@
         let allCourses = [];
         let userEnrollments = [];
         let currentUserId = null;
-        
+
         // Show alert message (add this at the bottom of the page if needed)
         function showAlert(message, type = 'success') {
             const alertDiv = document.createElement('div');
@@ -508,15 +508,15 @@
             alertDiv.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
             alertDiv.style.color = type === 'success' ? '#155724' : '#721c24';
             alertDiv.style.border = type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
-            
+
             document.body.appendChild(alertDiv);
-            
+
             // Remove alert after 3 seconds
             setTimeout(() => {
                 alertDiv.remove();
             }, 3000);
         }
-        
+
         // Load user profile from backend
         async function loadUserProfile() {
             try {
@@ -526,7 +526,7 @@
                     window.location.href = 'second.html';
                     return;
                 }
-                
+
                 const response = await fetch(`${API_BASE_URL}/user/profile`, {
                     method: 'GET',
                     headers: {
@@ -549,7 +549,7 @@
                 if (userData.username) {
                     document.getElementById('profileInitial').textContent = userData.username.charAt(0).toUpperCase();
                 }
-                
+
                 // Load courses and enrollments
                 await Promise.all([
                     loadAllCourses(),
@@ -560,22 +560,22 @@
                 showAlert('Failed to load profile. Please login again.', 'danger');
             }
         }
-        
+
         // Function to logout
         function logout() {
             localStorage.removeItem('token');
             window.location.href = 'second.html'; // Redirect to login page
         }
-        
+
         // Load all available courses
         async function loadAllCourses() {
             try {
                 const response = await fetch(`${API_BASE_URL}/courses`);
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch courses');
                 }
-                
+
                 allCourses = await response.json();
                 displayCourses(allCourses);
             } catch (error) {
@@ -583,7 +583,7 @@
                 showAlert('Failed to load courses', 'danger');
             }
         }
-        
+
         // Load user's enrollments
         async function loadUserEnrollments() {
             try {
@@ -593,11 +593,11 @@
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch enrollments');
                 }
-                
+
                 userEnrollments = await response.json();
                 displayEnrollments(userEnrollments);
             } catch (error) {
@@ -605,29 +605,29 @@
                 showAlert('Failed to load your enrollments', 'danger');
             }
         }
-        
+
         // Display all available courses
         function displayCourses(courses) {
             const coursesGrid = document.getElementById('courses-grid');
             coursesGrid.innerHTML = '';
-            
+
             if (courses.length === 0) {
                 coursesGrid.innerHTML = '<p class="no-courses">No courses available at the moment.</p>';
                 return;
             }
-            
+
             courses.forEach(async (course) => {
                 // Get enrollment count for this course
                 const enrollmentCount = await getEnrollmentCount(course._id);
-                
+
                 // Check if user is already enrolled or is the creator
-                const isEnrolled = userEnrollments.some(enrollment => 
+                const isEnrolled = userEnrollments.some(enrollment =>
                     enrollment.course._id === course._id);
                 const isCreator = course.creator?._id === currentUserId;
-                
+
                 const courseCard = document.createElement('div');
                 courseCard.className = 'course-card';
-                
+
                 let actionButton = '';
                 if (isCreator) {
                     actionButton = `<div class="enrollment-status">Your Course</div>`;
@@ -641,7 +641,7 @@
                 } else {
                     actionButton = `<button class="btn enroll-btn" data-id="${course._id}">Enroll Now</button>`;
                 }
-                
+
                 courseCard.innerHTML = `
                     <h3>${course.courseTitle}</h3>
                     <span class="badge">${course.skillLevel}</span>
@@ -651,35 +651,35 @@
                     <p>Capacity: ${enrollmentCount}/${course.maxStudents}</p>
                     ${actionButton}
                 `;
-                
+
                 coursesGrid.appendChild(courseCard);
-                
+
                 // Add event listeners to buttons
                 const enrollBtn = courseCard.querySelector('.enroll-btn');
                 if (enrollBtn) {
                     enrollBtn.addEventListener('click', () => enrollInCourse(course._id));
                 }
-                
+
                 const unenrollBtn = courseCard.querySelector('.unenroll-btn');
                 if (unenrollBtn) {
                     unenrollBtn.addEventListener('click', () => unenrollFromCourse(course._id));
                 }
             });
         }
-        
+
         // Display user's enrollments
         function displayEnrollments(enrollments) {
             const enrollmentsList = document.getElementById('enrollments-list');
             enrollmentsList.innerHTML = '';
-            
+
             if (enrollments.length === 0) {
                 enrollmentsList.innerHTML = '<p class="no-courses">You are not enrolled in any courses yet.</p>';
                 return;
             }
-            
+
             enrollments.forEach(enrollment => {
                 const course = enrollment.course;
-                
+
                 const enrollmentItem = document.createElement('div');
                 enrollmentItem.className = 'enrollment-item';
                 enrollmentItem.innerHTML = `
@@ -693,15 +693,15 @@
                     </div>
 
                 `;
-                
+
                 enrollmentsList.appendChild(enrollmentItem);
-                
+
                 // Add event listener to unenroll button
                 const unenrollBtn = enrollmentItem.querySelector('.unenroll-btn');
                 unenrollBtn.addEventListener('click', () => unenrollFromCourse(course._id));
             });
         }
-        
+
         // Get enrollment count for a course
         async function getEnrollmentCount(courseId) {
             try {
@@ -713,7 +713,7 @@
                 return 0;
             }
         }
-        
+
         // Enroll in a course
         async function enrollInCourse(courseId) {
             try {
@@ -726,9 +726,9 @@
                     },
                     body: JSON.stringify({ courseId })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     showAlert('Successfully enrolled in course!');
                     // Reload data
@@ -744,13 +744,13 @@
                 showAlert('Error enrolling in course. Please try again.', 'danger');
             }
         }
-        
+
         // Unenroll from a course
         async function unenrollFromCourse(courseId) {
             if (!confirm('Are you sure you want to unenroll from this course?')) {
                 return;
             }
-            
+
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/enrollments/${courseId}`, {
@@ -759,7 +759,7 @@
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                
+
                 if (response.ok) {
                     showAlert('Successfully unenrolled from course!');
                     // Reload data
@@ -776,47 +776,47 @@
                 showAlert('Error unenrolling from course. Please try again.', 'danger');
             }
         }
-        
+
         // Filter courses based on category and level
         function filterCourses() {
             const categoryFilter = document.getElementById('category-filter').value;
             const levelFilter = document.getElementById('level-filter').value;
-            
+
             let filteredCourses = [...allCourses];
-            
+
             if (categoryFilter) {
                 filteredCourses = filteredCourses.filter(course => course.skillCategory === categoryFilter);
             }
-            
+
             if (levelFilter) {
                 filteredCourses = filteredCourses.filter(course => course.skillLevel === levelFilter);
             }
-            
+
             displayCourses(filteredCourses);
         }
-        
+
         // Set up event listeners
         document.addEventListener('DOMContentLoaded', function() {
             const userProfile = document.getElementById('userProfile');
             const profileDropdown = document.getElementById('profileDropdown');
             const categoryFilter = document.getElementById('category-filter');
             const levelFilter = document.getElementById('level-filter');
-            
+
             userProfile.addEventListener('click', function() {
                 profileDropdown.classList.toggle('active');
             });
-            
+
             // Apply filters when selections change
             categoryFilter.addEventListener('change', filterCourses);
             levelFilter.addEventListener('change', filterCourses);
-            
+
             // Close dropdown when clicking outside
             document.addEventListener('click', function(event) {
                 if (!userProfile.contains(event.target)) {
                     profileDropdown.classList.remove('active');
                 }
             });
-            
+
             loadUserProfile();
         });
     </script>
