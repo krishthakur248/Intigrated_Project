@@ -576,7 +576,7 @@
         // API Base URL
         const API_BASE_URL = 'https://intigrated-project-4.onrender.com';
         let allCourses = [];
-        
+
         // Show alert message
         function showAlert(message, type = 'success') {
             const alertContainer = document.getElementById('alertContainer');
@@ -584,13 +584,13 @@
             alertDiv.className = `alert alert-${type}`;
             alertDiv.textContent = message;
             alertContainer.appendChild(alertDiv);
-            
+
             // Remove alert after 3 seconds
             setTimeout(() => {
                 alertDiv.remove();
             }, 3000);
         }
-        
+
         // Load user profile from backend
         async function loadUserProfile() {
             try {
@@ -600,7 +600,7 @@
                     window.location.href = 'second.html';
                     return;
                 }
-                
+
                 const response = await fetch(`${API_BASE_URL}/user/profile`, {
                     method: 'GET',
                     headers: {
@@ -622,10 +622,10 @@
                 if (userData.username) {
                     document.getElementById('profileInitial').textContent = userData.username.charAt(0).toUpperCase();
                 }
-                
+
                 // Automatically fill instructor name if available
                 document.getElementById('instructor-name').value = userData.username || '';
-                
+
                 // Load user's created courses
                 loadInstructorCourses();
             } catch (error) {
@@ -633,17 +633,17 @@
                 showAlert('Failed to load profile. Please login again.', 'danger');
             }
         }
-        
+
         // Function to logout
         function logout() {
             localStorage.removeItem('token');
             window.location.href = 'second.html'; // Redirect to login page
         }
-        
+
         // Submit new course
         async function submitCourse(event) {
             event.preventDefault();
-            
+
             const courseData = {
                 courseTitle: document.getElementById('course-title').value,
                 instructorName: document.getElementById('instructor-name').value,
@@ -652,7 +652,7 @@
                 courseDescription: document.getElementById('course-description').value,
                 maxStudents: document.getElementById('max-students').value
             };
-            
+
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/courses`, {
@@ -663,9 +663,9 @@
                     },
                     body: JSON.stringify(courseData)
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     showAlert('Course created successfully!');
                     document.getElementById('course-form').reset();
@@ -678,7 +678,7 @@
                 showAlert('Error creating course. Please try again.', 'danger');
             }
         }
-        
+
         // Load instructor's created courses
         async function loadInstructorCourses() {
             try {
@@ -688,11 +688,11 @@
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch courses');
                 }
-                
+
                 const courses = await response.json();
                 allCourses = courses;
                 displayCourses(courses);
@@ -701,21 +701,21 @@
                 showAlert('Failed to load your courses', 'danger');
             }
         }
-        
+
         // Display courses in the list
         function displayCourses(courses) {
             const coursesContainer = document.getElementById('instructor-courses');
             coursesContainer.innerHTML = '';
-            
+
             if (courses.length === 0) {
                 coursesContainer.innerHTML = '<p>You haven\'t created any courses yet.</p>';
                 return;
             }
-            
+
             courses.forEach(async (course) => {
                 // Get enrollment count for this course
                 const enrollmentCount = await getEnrollmentCount(course._id);
-                
+
                 const courseElement = document.createElement('div');
                 courseElement.className = 'course-item';
                 courseElement.innerHTML = `
@@ -732,15 +732,15 @@
                         <button class="delete-btn" data-id="${course._id}">Delete</button>
                     </div>
                 `;
-                
+
                 coursesContainer.appendChild(courseElement);
-                
+
                 // Add event listener to delete button
                 const deleteBtn = courseElement.querySelector('.delete-btn');
                 deleteBtn.addEventListener('click', () => deleteCourse(course._id));
             });
         }
-        
+
         // Get enrollment count for a course
         async function getEnrollmentCount(courseId) {
             try {
@@ -752,13 +752,13 @@
                 return 0;
             }
         }
-        
+
         // Delete a course
         async function deleteCourse(courseId) {
             if (!confirm('Are you sure you want to delete this course? All enrollments will also be deleted.')) {
                 return;
             }
-            
+
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
@@ -767,7 +767,7 @@
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                
+
                 if (response.ok) {
                     showAlert('Course deleted successfully!');
                     loadInstructorCourses(); // Reload course list
@@ -780,44 +780,44 @@
                 showAlert('Error deleting course. Please try again.', 'danger');
             }
         }
-        
+
         // Filter courses based on category and level
         function applyCourseFilters() {
             const categoryFilter = document.getElementById('category-filter').value;
             const levelFilter = document.getElementById('level-filter').value;
-            
+
             let filteredCourses = [...allCourses];
-            
+
             if (categoryFilter) {
                 filteredCourses = filteredCourses.filter(course => course.skillCategory === categoryFilter);
             }
-            
+
             if (levelFilter) {
                 filteredCourses = filteredCourses.filter(course => course.skillLevel === levelFilter);
             }
-            
+
             displayCourses(filteredCourses);
         }
-        
+
         // Set up event listeners
         document.addEventListener('DOMContentLoaded', function() {
             const userProfile = document.getElementById('userProfile');
             const profileDropdown = document.getElementById('profileDropdown');
             const courseForm = document.getElementById('course-form');
-            
+
             userProfile.addEventListener('click', function() {
                 profileDropdown.classList.toggle('active');
             });
-            
+
             courseForm.addEventListener('submit', submitCourse);
-            
+
             // Close dropdown when clicking outside
             document.addEventListener('click', function(event) {
                 if (!userProfile.contains(event.target)) {
                     profileDropdown.classList.remove('active');
                 }
             });
-            
+
             loadUserProfile();
         });
     </script>
