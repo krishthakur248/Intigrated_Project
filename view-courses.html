@@ -398,6 +398,15 @@
         .newmy > button{
             color: white;
         }
+        .myadd{
+            display: flex;
+            justify-content: space-evenly;
+        }
+        .btn1{
+            background-color: green;
+                width: 40%;
+                color: white;
+            }
     </style>
 </head>
 <body>
@@ -462,7 +471,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="" class="nav-link active">
+                <a href="view-courses.html" class="nav-link active">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
                     </svg>
@@ -470,11 +479,11 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="./Coomingsoon.html" class="nav-link">
+                <a href="./YourWnrollment.html" class="nav-link">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
                     </svg>
-                    <span>Ingroup</span>
+                    <span>My courses</span>
                 </a>
             </li>
 
@@ -630,7 +639,9 @@
 
                 let actionButton = '';
                 if (isCreator) {
-                    actionButton = `<div class="enrollment-status">Your Course</div>`;
+                    actionButton = `<div class="enrollment-status">Your Course</div>
+                        <a href="./chat.html?courseId=${course._id}" class="btn btn-secondary" style="text-align:center;text-decoration:none">Join Chat</a>
+                                    `;
                 } else if (isEnrolled) {
                     actionButton = `
                         <div class="enrollment-status">Enrolled</div>
