@@ -406,7 +406,13 @@
             background-color: green;
                 width: 40%;
                 color: white;
-            }
+        }
+        .unenroll-btn{
+            background-color: #e74c3c;
+        }
+        .unenroll-btn:hover{
+            background-color: #e74c3c;
+        }
     </style>
 </head>
 <body>
@@ -481,16 +487,18 @@
             <li class="nav-item">
                 <a href="./YourWnrollment.html" class="nav-link">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H6V4h2v8l2.5-1.5L13 12V4h5v16z"/>
                     </svg>
-                    <span>My courses</span>
+                    <span>My Enrollments</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="./Coomingsoon.html" class="nav-link">
-                    <div class="menu-icon"></div>
-                    <span>Menu</span>
+                <a href="./YourCourses.html" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                    </svg>
+                    <span>My Courses</span>
                 </a>
             </li>
         </ul>
@@ -639,8 +647,10 @@
 
                 let actionButton = '';
                 if (isCreator) {
-                    actionButton = `<div class="enrollment-status">Your Course</div>
-                        <a href="./chat.html?courseId=${course._id}" class="btn btn-secondary" style="text-align:center;text-decoration:none">Join Chat</a>
+                    actionButton = `<div class="enrollment-status" style="color:red">Your Course</div>
+                        <div class="newmy">
+                            <button class="btn btn-secondary" data-id="${course._id}"> <a href="./chat.html?courseId=${course._id}" style="color:white;text-decoration: none;"> Join Chat </a> </button>
+                        </div>
                                     `;
                 } else if (isEnrolled) {
                     actionButton = `
@@ -699,7 +709,7 @@
                     <p>Category: ${course.skillCategory} | Level: ${course.skillLevel}</p>
                     <p>Enrolled on: ${new Date(enrollment.enrollmentDate).toLocaleDateString()}</p>
                     <div class="newmy">
-                        <button class="btn btn-secondary" data-id="${course._id}"> <a href="./index.html" style="color:white;text-decoration: none;"> Join Now </a> </button>
+                        <button class="btn btn-secondary" data-id="${course._id}"> <a href="./index.html?courseId=${course._id}" style="color:white;text-decoration: none;"> Join Now </a> </button>
                         <button class="btn btn-secondary unenroll-btn" data-id="${course._id}">Unenroll</button>
                     </div>
 
