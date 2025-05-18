@@ -118,7 +118,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             color: black;
         }
-
+        
         .category-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0,0,0,0.1);
@@ -147,7 +147,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             transition: transform 0.3s ease;
         }
-
+        
         .category-card:hover .category-image {
             transform: scale(1.05);
         }
@@ -228,7 +228,7 @@
             margin-bottom: 20px;
             position: relative;
         }
-
+        
         .footer-section h4:after {
             content: '';
             position: absolute;
@@ -261,7 +261,7 @@
             color: #159952;
             transform: translateX(3px);
         }
-
+        
         .footer-bottom {
             text-align: center;
             padding: 20px 0;
@@ -269,13 +269,13 @@
             color: #6b7280;
             font-size: 0.9rem;
         }
-
+        
         .social-icons {
             display: flex;
             gap: 12px;
             margin-top: 16px;
         }
-
+        
         .social-icon {
             width: 36px;
             height: 36px;
@@ -286,7 +286,7 @@
             justify-content: center;
             transition: background-color 0.3s ease;
         }
-
+        
         .social-icon:hover {
             background-color: #e5e7eb;
         }
@@ -297,39 +297,14 @@
         }
 
         /* Bottom Navigation - IMPROVED */
-        .nav-links {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .nav-links a {
-            color: var(--primary-color);
-            text-decoration: none;
-            margin: 0 10px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            background-color: var(--background-light);
-        }
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: white;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-    .bottom-nav {
             background-color: white;
             padding: 15px 0;
             box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
             position: fixed;
             bottom: 0;
             width: 100%;
+            max-width: 1200px;
             border-radius: 16px 16px 0 0;
             z-index: 100;
         }
@@ -364,11 +339,11 @@
         .nav-link:hover {
             color: #159952;
         }
-
+        
         .nav-link.active {
             color: #159952;
         }
-
+        
         .nav-link.active::after {
             content: '';
             position: absolute;
@@ -388,11 +363,7 @@
             fill: currentColor;
             transition: transform 0.2s ease;
         }
-
-        .nav-link:hover .nav-icon {
-            transform: translateY(-2px);
-        }
-
+        
         .nav-link:hover .nav-icon {
             transform: translateY(-2px);
         }
@@ -414,6 +385,8 @@
             top: 50%;
             transform: translateY(-50%);
         }
+
+        /* Responsive styles */
         @media (min-width: 768px) {
             .container {
                 padding: 24px;
@@ -463,7 +436,7 @@
             .professor-info span {
                 font-size: 1.25rem;
             }
-
+            
             .footer-content {
                 grid-template-columns: repeat(4, 1fr);
             }
@@ -506,6 +479,867 @@
                 height: 50px;
             }
         }
+        body {
+            background-color: #fffffffe;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        /* Header styles */
+        .site-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 10rem;
+        }
+
+        img {
+            border-radius: 20%;
+        }
+
+        .auth-container {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .login-btn {
+            background-color: #159952;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Welcome section */
+        .welcome-section {
+            margin-bottom: 20px;
+        }
+
+        .welcome-section h1 {
+            font-size: 1.8rem;
+            color: #208b32;
+            margin-bottom: 4px;
+            font-family: cursive;
+        }
+
+        .welcome-section h2 {
+            font-size: 2.2rem;
+            color: #212529;
+            font-family: small-caps;
+        }
+
+        /* Search styles */
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 40px;
+            border-radius: 50px;
+            border: 1px solid #dee2e6;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        /* Category grid - IMPROVED */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+            color: #212529;
+        }
+
+        .category-card {
+            padding: 18px;
+            border-radius: 16px;
+            position: relative;
+            min-height: 160px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            color: black;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .category-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .category-card p {
+            font-size: 1rem;
+            line-height: 1.4;
+            max-width: relative;
+        }
+
+        .category-image {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        .category-card:hover .category-image {
+            transform: scale(1.05);
+        }
+
+        .bold{
+            max-width: 20%;
+        }
+
+        /* Card colors */
+        .engineering { background-color: #e6c1ed; }
+        .medical { background-color: #e8d3b8; }
+        .commerce { background-color: #72f6a1; }
+        .arts { background-color: #eba1a8; }
+        .masters { background-color: #f7e395; }
+        .more-categories { background-color: #b2b9ed; }
+
+        /* Professor banner */
+        .professor-banner {
+            background-color: #f3f4f6;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .professor-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .professor-icon {
+            width: 32px;
+            height: 32px;
+            background-color: #059669;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .professor-info span {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .credit-info {
+            color: #059669;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Footer styles - IMPROVED */
+        .site-footer {
+            margin-top: 32px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 32px;
+            background-color: #f8f9fa;
+            border-radius: 16px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-bottom: 32px;
+            padding: 0 16px;
+        }
+
+        .footer-section h4 {
+            color: #374151;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .footer-section h4:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            height: 3px;
+            width: 40px;
+            background-color: #159952;
+            border-radius: 2px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 14px;
+        }
+
+        .footer-links a {
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s ease, transform 0.2s ease;
+            display: inline-block;
+            padding: 2px 0;
+        }
+
+        .footer-links a:hover {
+            color: #159952;
+            transform: translateX(3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            background-color: #e5e7eb;
+        }
+
+        .foot {
+            padding: 16px;
+            margin-bottom: 100px;
+        }
+
+        /* Bottom Navigation - NEW TOGGLE DESIGN */
+        .bottom-nav {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 16px 16px 0 0;
+            z-index: 100;
+        }
+
+        .nav-list {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-item {
+            text-align: center;
+            position: relative;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #6b7280;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 8px 12px;
+        }
+
+        .nav-link:hover {
+            color: #159952;
+        }
+        
+        .nav-link.active {
+            color: #159952;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: #159952;
+            border-radius: 50%;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 6px;
+            fill: currentColor;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-link:hover .nav-icon {
+            transform: translateY(-2px);
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+            border-top: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            position: relative;
+        }
+
+        .menu-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: currentColor;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* NEW Toggle Switch Styles */
+        .peer-toggle-container {
+            position: relative;
+            width: 200px;
+            height: 48px;
+            background-color: #f3f4f6;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .peer-toggle-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .peer-toggle-option {
+            flex: 1;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            font-weight: 600;
+            font-size: 14px;
+            color: #6b7280;
+            padding: 0 10px;
+        }
+        
+        .peer-toggle-option.active {
+            color: white;
+        }
+        
+        .peer-toggle-slider {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background-color: #159952;
+            border-radius: 24px;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 1;
+        }
+        
+        .peer-toggle-slider.teaching {
+            transform: translateX(0);
+        }
+        
+        .peer-toggle-slider.learning {
+            transform: translateX(100%);
+        }
+        
+        .peer-toggle-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 6px;
+            fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+        
+        .peer-toggle-container:hover .peer-toggle-icon {
+            transform: rotate(15deg);
+        }
+
+        /* Responsive styles */
+        @media (min-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            .welcome-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .welcome-section h2 {
+                font-size: 3rem;
+            }
+
+            .categories-grid {
+                gap: 24px;
+            }
+
+            .category-card {
+                padding: 24px;
+                min-height: 200px;
+            }
+
+            .category-card h3 {
+                font-size: 1.5rem;
+            }
+
+            .category-card p {
+                font-size: 1.1rem;
+            }
+
+            .category-image {
+                width: 96px;
+                height: 96px;
+                bottom: 16px;
+                right: 16px;
+            }
+
+            .professor-banner {
+                padding: 24px;
+            }
+
+            .professor-icon {
+                width: 48px;
+                height: 48px;
+            }
+
+            .professor-info span {
+                font-size: 1.25rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 32px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .peer-toggle-container {
+                width: 170px;
+                height: 44px;
+            }
+            
+            .peer-toggle-option {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .categories-grid {
+                gap: 8px;
+            }
+
+            .category-card {
+                padding: 12px;
+                min-height: 140px;
+            }
+
+            .category-card h3 {
+                font-size: 1rem;
+            }
+
+            .category-card p {
+                font-size: 0.8rem;
+            }
+
+            .category-image {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .peer-toggle-container {
+                width: 150px;
+                height: 40px;
+            }
+        }
+
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        
+        .auth-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+
+        .login-btn:hover {
+            background-color: #0f7a40;
+        }
+
+        /* Hero section */
+        .hero {
+            padding: 48px 16px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-radius: 16px;
+            margin: 24px 0;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            color: #159952;
+            margin-bottom: 16px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #4b5563;
+            max-width: 800px;
+            margin: 0 auto 24px;
+        }
+
+        .cta-btn {
+            background-color: #159952;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .cta-btn:hover {
+            background-color: #0f7a40;
+            transform: translateY(-2px);
+        }
+
+        /* Features section */
+        .features {
+            padding: 48px 16px;
+            text-align: center;
+        }
+
+        .features h2 {
+            font-size: 2rem;
+            color: #212529;
+            margin-bottom: 48px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-bottom: 48px;
+        }
+
+        .feature-card {
+            padding: 24px;
+            border-radius: 16px;
+            background-color: #f8f9fa;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background-color: #e6f7ee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: #159952;
+            font-size: 24px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            color: #212529;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: #6b7280;
+        }
+
+        /* How it works section */
+        .how-it-works {
+            padding: 48px 16px;
+            background-color: #f8f9fa;
+            border-radius: 16px;
+            margin: 24px 0;
+        }
+
+        .how-it-works h2 {
+            font-size: 2rem;
+            color: #212529;
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 250px;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background-color: #159952;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .step h3 {
+            font-size: 1.2rem;
+            color: #212529;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .site-footer {
+            background-color: #f8f9fa;
+            padding: 48px 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 48px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+            max-width: 1000px;
+            margin: 0 auto 32px;
+        }
+
+        .footer-section h4 {
+            font-size: 1.2rem;
+            color: #212529;
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #4b5563;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #159952;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.9rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background-color: white;
+            padding: 16px 0;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 1200px;
+            z-index: 100;
+        }
+
+        .nav-list {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-item {
+            text-align: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #6b7280;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .nav-link.active {
+            color: #159952;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* Mode toggle */
+        .mode-toggle {
+            display: flex;
+            background-color: #f3f4f6;
+            border-radius: 24px;
+            padding: 4px;
+            width: 200px;
+            margin: 24px auto;
+        }
+
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .toggle-option.active {
+            background-color: #159952;
+            color: white;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps {
+                flex-direction: column;
+                align-items: center;
+                gap: 32px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -515,101 +1349,27 @@
         <header class="site-header">
             <div class="brand">
                 <img src="Free (1).png" height="70rem">
-                <span style="font-weight: bold; font-size: 1.25rem;">SkillXchange</span>
+                <span style="font-weight: bold; font-size: 1.25rem;">Skill<br>Xchange</span>
             </div>
             <div class="auth-container">
                 <a href="second.html">
                 <button class="login-btn">Login</button></a>
             </div>
         </header>
-
         <!-- Welcome Section -->
-        <div class="welcome-section">
-            <h1>Hii,</h1>
-            <h2>Xchange Your Skills!</h2>
+        <section class="hero">
+            <h1>Hii, Xchange Your Skills!</h1>
+            <p>Empowering students to unlock their potential by bridging the gap between knowledge and experience.</p>
+            <a href="./third.html"><button class="cta-btn">Get Started</button></a>
+        </section>
         </div>
-
-        <!-- Search Box -->
-        <div class="search-wrapper">
-            <input type="text" class="search-input" placeholder="Search">
-            <span class="search-icon">🔍</span>
+        <!-- Mode Toggle -->
+         <h3> &nbsp; Switch Between Different Modes:</h3>
+        <div class="mode-toggle">
+            <div class="toggle-option active">Teaching</div>
+            <div class="toggle-option">Learning</div>
         </div>
-
-        <!-- Categories Grid -->
-        <div class="categories-grid">
-            <a href="second.html">
-            <div class="category-card engineering">
-                <h3>Engineering </h3>
-
-                <p>Connect with other Engineerers...</p> <br>
-                <div class="bold">
-                <p style="font-weight: bold;">The Builders!</p>
-                </div>
-                <img src="eng.jpeg" alt="Engineering" class="category-image">
-            </div>
-            </a>
-            <a href="second.html">
-            <div class="category-card medical" style="color: #212529;">
-
-
-                <h3>Medical Field</h3>
-                <p>Connect with Other Medical Students...</p> <br>
-                <div class="bold">
-                <p style="font-weight: bold;">Future doctors!</p>
-                </div>
-
-                <img src="Medical.jpg" alt="Medical" class="category-image">
-            </div>
-            </a>
-
-            <a href="second.html">
-            <div class="category-card commerce">
-                <h3>Commerce </h3>
-                <p>Connect with Other Accountants</p> <br>
-                <div class="bold">
-                <p style="font-weight: bold;">Economy Planing!</p>
-                </div>
-                <img src="com.jpg" alt="Commerce" class="category-image">
-            </div>
-            </a>
-            <a href="second.html">
-            <div class="category-card arts">
-                <h3>Arts Field</h3>
-                <p>Connect with designers</p> <br>
-                <div class="bold">
-                <p style="font-weight: bold;">The Artist!</p>
-                </div>
-                <img src="art.png" alt="Arts" class="category-image">
-            </div>
-            </a>
-
-            <a href="second.html">
-            <div class="category-card masters">
-                <h3>Masters</h3>
-                <p>Connect with<br>Masters students.</p> <br>
-                <div class="bold">
-                <p style="font-weight: bold;">Step Ahead!</p>
-                </div>
-                <img src="pic1.svg" alt="Masters" class="category-image">
-            </div>
-            </a>
-
-            <a href="second.html">
-            <div class="category-card more-categories">
-                <h3>More</h3>
-                <p> Explore other streams...</p> <br>
-                <div class="bold">
-                <p style="font-weight: bold;">Diverse Careers!</p></div>
-                <div style="position: absolute; bottom: 8px; right: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                    <div style="width: 32px; height: 32px; background: white; border-radius: 50%;"></div>
-                    <div style="width: 30px; height: 32px; background: white; border-radius: 50%;"></div>
-                    <div style="width: 32px; height: 32px; background: white; border-radius: 50%;"></div>
-                </div>
-            </div>
-        </div>
-        </a>
-        <p> "Empowering students to unlock their potential by bridging the gap between knowledge and experience."</p>
-        <br>
+       
 
         <!-- Professor Banner -->
         <p>------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</p>
@@ -621,7 +1381,7 @@
                 <div class="professor-icon">Prof.</div>
                 <span>Connect with Profersors!</span>
             </div>
-            <a href="#" class="credit-info">Only For High Credit Holders!</a>
+            <a href="Coomingsoon.html" class="credit-info">Only For High Credit Holders!</a>
         </div>
         <br>
         <p> We provide a platform connecting students with professors having high credit points. Students learn new skills, gain practical experience, and earn credits through project-based learning.</p>
@@ -635,12 +1395,12 @@
     <p> To create a dynamic peer-to-peer learning ecosystem that facilitates knowledge sharing, skill exchange, and collaborative growth among individuals, promoting a culture of mutual support, social learning, and continuous development.</h3>
         <br>
         <br>
-        <img src="aim.jpeg" height="350rem">
+        <img src="aim.jpeg" height="420rem">
         <br>
         <br>
         <p>------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</p>
     </div>
-
+    
 
 
     <!-- Footer - IMPROVED -->
@@ -650,29 +1410,29 @@
             <div class="footer-section">
                 <h4>About SkillXchange</h4>
                 <ul class="footer-links">
-                    <li><a href="ourstory.html">Our Story</a></li>
-                    <li><a href="mission.html">Mission & Vision</a></li>
-                    <li><a href="howitwork.html">How It Works</a></li>
-                    <li><a href="career.html">Career Opportunities</a></li>
-                </ul>
+                    <li><a href="#">Our Story</a></li>
+                    <li><a href="#">Mission & Vision</a></li>
+                    <li><a href="#">How It Works</a></li>
+                    <li><a href="#">Career Opportunities</a></li>
+                </ul> 
             </div>
-
+            
             <div class="footer-section">
                 <h4>Resources</h4>
                 <ul class="footer-links">
                     <li><a href="#">Blog</a></li>
-                    <li><a href="hemp.html">Help Center</a></li>
+                    <li><a href="#">Help Center</a></li>
                     <li><a href="#">Community Guidelines</a></li>
-                    <li><a href="resourses.html">Help For Teaching</a></li>
+                    <li><a href="willbeupdated.html">Success Stories</a></li>
                 </ul>
             </div>
-
+            
             <div class="footer-section">
                 <h4>Connect With Us</h4>
                 <ul class="footer-links">
-                    <li><a href="./contactus.html">Contact Us</a></li>
+                    <li><a href="#">Contact Us</a></li>
                     <li><a href="feedback.html">Feedback</a></li>
-                    <li><a href="#">Partnership Inquiries</a></li>
+                    <li><a href="">Partnership Inquiries</a></li>
                 </ul>
                 <div class="social-icons">
                     <a href="#" class="social-icon">
@@ -696,19 +1456,20 @@
                         </svg>
                     </a>
                 </div>
+                
             </div>
-
+            
             <div class="footer-section">
                 <h4>Legal</h4>
                 <ul class="footer-links">
-                    <li><a href="terms.html">Terms of Service</a></li>
-                    <li><a href="private.html">Privacy Policy</a></li>
-                    <li><a href="coockie.html">Cookie Policy</a></li>
-                    <li><a href="acces.html">Accessibility</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">Accessibility</a></li>
                 </ul>
             </div>
         </div>
-
+        
         <div class="footer-bottom">
             <p>&copy; 2025 SkillXchange. All rights reserved.</p>
         </div>
@@ -767,46 +1528,69 @@
         document.querySelectorAll('.category-card').forEach(card => {
             card.addEventListener('mouseover', () => {
                 card.style.transform = 'translateY(-4px)';
-                card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
                 card.style.boxShadow = '0 8px 15px rgba(0,0,0,0.1)';
             });
-
+            
             card.addEventListener('mouseout', () => {
                 card.style.transform = 'translateY(0)';
                 card.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
             });
         });
 
-        // Active nav link
-        // Card hover effects
-document.querySelectorAll('.category-card').forEach(card => {
-    card.addEventListener('mouseover', () => {
-        card.style.transform = 'translateY(-4px)';
-        card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
-        card.style.boxShadow = '0 8px 15px rgba(0,0,0,0.1)';
-    });
-
-    card.addEventListener('mouseout', () => {
-        card.style.transform = 'translateY(0)';
-        card.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
-    });
-});
-
-// Active nav link
-const navLinks = document.querySelectorAll('.nav-link');
-
-navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        // Remove active class from all nav links
-        navLinks.forEach(item => {
-            item.classList.remove('active');
+        // Search input focus effects
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('focus', () => {
+            searchInput.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.5)';
         });
 
-        // Add active class to clicked link
-        link.classList.add('active');
-    });
-});
+        searchInput.addEventListener('blur', () => {
+            searchInput.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+        });
 
-</script>
+        // Toggle functionality for peer switch
+        const teachingOption = document.getElementById('teaching-option');
+        const learningOption = document.getElementById('learning-option');
+        const toggleSlider = document.querySelector('.peer-toggle-slider');
+        
+        teachingOption.addEventListener('click', () => {
+            toggleSlider.classList.remove('learning');
+            toggleSlider.classList.add('teaching');
+            teachingOption.classList.add('active');
+            learningOption.classList.remove('active');
+            window.location.href = 'teaching.html'; // Update with actual page
+        });
+        
+        learningOption.addEventListener('click', () => {
+            toggleSlider.classList.remove('teaching');
+            toggleSlider.classList.add('learning');
+            learningOption.classList.add('active');
+            teachingOption.classList.remove('active');
+            window.location.href = 'learning.html'; // Update with actual page
+        });
+
+        // Navigation active state
+        const navLinks = document.querySelectorAll('.nav-link');
+        const currentPath = window.location.pathname.split('/').pop();
+
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPath || (href === '#' && currentPath === 'index.html')) {
+                link.classList.add('active');
+            }
+
+            link.addEventListener('click', (e) => {
+                navLinks.forEach(item => item.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        // Set initial toggle state
+        if (currentPath === 'learning.html') {
+            toggleSlider.classList.remove('teaching');
+            toggleSlider.classList.add('learning');
+            learningOption.classList.add('active');
+            teachingOption.classList.remove('active');
+        }
+    </script>
 </body>
 </html>
